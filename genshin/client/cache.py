@@ -51,7 +51,7 @@ class CacheKey:
 
 
 def cache_key(key: str, **kwargs: typing.Any) -> CacheKey:
-    name = key.capitalize() + "CacheKey"
+    name = f"{key.capitalize()}CacheKey"
     fields = ["key"] + list(kwargs.keys())
     cls = dataclasses.make_dataclass(name, fields, bases=(CacheKey,), eq=False)
     return typing.cast("CacheKey", cls(key, **kwargs))
@@ -116,10 +116,7 @@ class Cache(BaseCache):
         """Get an object with a key."""
         self._clear_cache()
 
-        if key not in self.cache:
-            return None
-
-        return self.cache[key][1]
+        return None if key not in self.cache else self.cache[key][1]
 
     async def set(self, key: typing.Any, value: typing.Any) -> None:
         """Save an object with a key."""
@@ -175,10 +172,7 @@ class RedisCache(BaseCache):
     async def get(self, key: typing.Any) -> typing.Optional[typing.Any]:
         """Get an object with a key."""
         value = typing.cast("typing.Optional[bytes]", await self.redis.get(self.serialize_key(key)))  # pyright: ignore
-        if value is None:
-            return None
-
-        return self.deserialize_value(value)
+        return None if value is None else self.deserialize_value(value)
 
     async def set(self, key: typing.Any, value: typing.Any) -> None:
         """Save an object with a key."""

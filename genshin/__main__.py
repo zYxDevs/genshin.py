@@ -109,7 +109,7 @@ async def genshin_stats(client: genshin.Client, uid: int) -> None:
     click.echo()
     click.secho("Explorations:", fg="yellow")
     for area in data.explorations:
-        perc = click.style(str(area.explored) + "%", bold=True)
+        perc = click.style(f"{str(area.explored)}%", bold=True)
         offerings = ", ".join(f"{o.name} {click.style(str(o.level), bold=True)}" for o in area.offerings)
         click.echo(f"{area.name} - explored {perc} | {offerings}")
 

@@ -35,11 +35,7 @@ class GenshinException(Exception):
         self.original = response.get("message", "")
         self.msg = msg or self.msg or self.original
 
-        if self.retcode:
-            msg = f"[{self.retcode}] {self.msg}"
-        else:
-            msg = self.msg
-
+        msg = f"[{self.retcode}] {self.msg}" if self.retcode else self.msg
         super().__init__(msg)
 
     def __repr__(self) -> str:

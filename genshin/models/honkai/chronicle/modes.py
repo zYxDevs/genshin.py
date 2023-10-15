@@ -109,11 +109,7 @@ class ELF(APIModel, Unique):
 
     @pydantic.validator("rarity", pre=True)
     def __fix_rank(cls, rarity: typing.Union[int, str]) -> str:
-        if isinstance(rarity, str):
-            return rarity
-
-        # ELFs come in rarities A and S, API returns 4 and 5, respectively
-        return ["A", "S"][rarity - 4]
+        return rarity if isinstance(rarity, str) else ["A", "S"][rarity - 4]
 
 
 # ABYSS
@@ -170,10 +166,7 @@ class OldAbyss(BaseAbyss):
         # while newAbyssReport returns them as 1/2/3/4(/5) respectively.
         # Having them as ints at base seems more useful than strs.
         # (in-game, they use the same names (Sinful, Agony, etc.))
-        if isinstance(rank, int):
-            return rank
-
-        return 69 - ord(rank)
+        return rank if isinstance(rank, int) else 69 - ord(rank)
 
     @property
     def rank(self) -> str:
@@ -361,10 +354,7 @@ class ElysianRealm(APIModel):
 
     @pydantic.validator("remembrance_sigil", pre=True)
     def __extend_sigil(cls, sigil: typing.Any) -> typing.Any:
-        if isinstance(sigil, str):
-            return dict(icon=sigil)
-
-        return sigil
+        return dict(icon=sigil) if isinstance(sigil, str) else sigil
 
     @property
     def lineup(self) -> typing.Sequence[battlesuit.Battlesuit]:
