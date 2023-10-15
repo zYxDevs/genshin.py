@@ -163,8 +163,10 @@ class Notes(APIModel):
         if self.remaining_transformer_recovery_time is None:
             return None
 
-        remaining = datetime.datetime.now().astimezone() + self.remaining_transformer_recovery_time
-        return remaining
+        return (
+            datetime.datetime.now().astimezone()
+            + self.remaining_transformer_recovery_time
+        )
 
     @pydantic.root_validator(pre=True)
     def __flatten_transformer(cls, values: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:

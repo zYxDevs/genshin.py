@@ -31,11 +31,7 @@ def _model_to_dict(model: APIModel, lang: str = "en-us") -> typing.Mapping[str, 
 
         mi18n = model._get_mi18n(field, lang)
         val = getattr(model, field.name)
-        if isinstance(val, APIModel):
-            ret[mi18n] = _model_to_dict(val, lang)
-        else:
-            ret[mi18n] = val
-
+        ret[mi18n] = _model_to_dict(val, lang) if isinstance(val, APIModel) else val
     return ret
 
 
@@ -130,10 +126,7 @@ class OldAbyssStats(APIModel):
         if isinstance(rank, int):
             return rank
 
-        if rank is None or "Unknown" in rank:
-            return None
-
-        return 69 - ord(rank)
+        return None if rank is None or "Unknown" in rank else 69 - ord(rank)
 
     @property
     def q_singularis_rank(self) -> typing.Optional[str]:

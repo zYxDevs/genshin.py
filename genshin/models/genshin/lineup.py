@@ -251,10 +251,7 @@ class LineupCharacterPreview(PartialLineupCharacter):
 
     @pydantic.validator("role", pre=True)
     def __parse_role(cls, value: typing.Any) -> str:
-        if isinstance(value, str):
-            return value
-
-        return value["name"]
+        return value if isinstance(value, str) else value["name"]
 
 
 class LineupCharacter(LineupCharacterPreview):
@@ -295,7 +292,7 @@ class LineupPreview(APIModel, Unique):
         if isinstance(value[0], typing.Sequence):
             return value
 
-        return [[character for character in group["group"]] for group in value]
+        return [list(group["group"]) for group in value]
 
 
 class Lineup(LineupPreview):

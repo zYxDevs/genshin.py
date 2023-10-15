@@ -39,7 +39,7 @@ def _search_output_log(content: str) -> pathlib.Path:
         match = match1
     elif match2 is not None:
         match = match2
-    elif match3 is not None:
+    else:
         match = match3
 
     base_dir = pathlib.Path(match[1]) / "webCaches"
@@ -136,8 +136,9 @@ def _read_datafile(game_location: typing.Optional[PathLike] = None, *, game: typ
 
 def extract_authkey(string: str) -> typing.Optional[str]:
     """Extract an authkey from the provided string."""
-    match = re.findall(r"https://.+?authkey=([^&#]+)", string, re.MULTILINE)
-    if match:
+    if match := re.findall(
+        r"https://.+?authkey=([^&#]+)", string, re.MULTILINE
+    ):
         return urllib.parse.unquote(match[-1])
 
     return None

@@ -26,14 +26,12 @@ ICON_BASE = "https://upload-os-bbs.mihoyo.com/game_record/genshin/"
 def _parse_icon(icon: typing.Union[str, int]) -> str:
     if isinstance(icon, int):
         for names in constants.CHARACTER_NAMES.values():
-            char = names.get(icon)
-            if char:
+            if char := names.get(icon):
                 return char.icon_name
 
         raise ValueError(f"Invalid character id {icon}")
 
-    match = re.search(r"UI_AvatarIcon(?:_Side)?_(.*).png", icon)
-    if match:
+    if match := re.search(r"UI_AvatarIcon(?:_Side)?_(.*).png", icon):
         return match[1]
 
     return icon
@@ -44,7 +42,7 @@ def _create_icon(icon: str, specifier: str) -> str:
         return icon  # no point in trying to parse invalid urls
 
     icon_name = _parse_icon(icon)
-    return ICON_BASE + f"{specifier.format(icon_name)}.png"
+    return f"{ICON_BASE}{specifier.format(icon_name)}.png"
 
 
 def _get_db_char(

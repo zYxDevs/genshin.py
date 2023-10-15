@@ -68,17 +68,11 @@ class CalculatorCharacter(character.BaseCharacter):
 
     @pydantic.validator("element", pre=True)
     def __parse_element(cls, v: typing.Any) -> str:
-        if isinstance(v, str):
-            return v
-
-        return CALCULATOR_ELEMENTS[int(v)]
+        return v if isinstance(v, str) else CALCULATOR_ELEMENTS[int(v)]
 
     @pydantic.validator("weapon_type", pre=True)
     def __parse_weapon_type(cls, v: typing.Any) -> str:
-        if isinstance(v, str):
-            return v
-
-        return CALCULATOR_WEAPON_TYPES[int(v)]
+        return v if isinstance(v, str) else CALCULATOR_WEAPON_TYPES[int(v)]
 
 
 class CalculatorWeapon(APIModel, Unique):
@@ -94,10 +88,7 @@ class CalculatorWeapon(APIModel, Unique):
 
     @pydantic.validator("type", pre=True)
     def __parse_weapon_type(cls, v: typing.Any) -> str:
-        if isinstance(v, str):
-            return v
-
-        return CALCULATOR_WEAPON_TYPES[int(v)]
+        return v if isinstance(v, str) else CALCULATOR_WEAPON_TYPES[int(v)]
 
 
 class CalculatorArtifact(APIModel, Unique):
@@ -240,7 +231,7 @@ class CalculatorResult(APIModel):
         for i in combined:
             grouped[i.id].append(i)
 
-        total = [
+        return [
             CalculatorConsumable(
                 id=x[0].id,
                 name=x[0].name,
@@ -249,8 +240,6 @@ class CalculatorResult(APIModel):
             )
             for x in grouped.values()
         ]
-
-        return total
 
 
 class CalculatorFurnishingResults(APIModel):

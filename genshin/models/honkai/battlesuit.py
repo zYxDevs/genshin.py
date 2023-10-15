@@ -50,7 +50,7 @@ class Battlesuit(APIModel, Unique):
             return tall_icon
 
         suit_identifier = BATTLESUIT_IDENTIFIERS.get(values["id"])
-        return ICON_BASE + f"AvatarTachie/{suit_identifier or 'Unknown'}.png"
+        return f"{ICON_BASE}AvatarTachie/{suit_identifier or 'Unknown'}.png"
 
     @property
     def character(self) -> str:

@@ -27,8 +27,7 @@ def _get_init_fields(cls: typing.Type[APIModel]) -> typing.Tuple[typing.Set[str]
     model_init_fields: typing.Set[str] = set()
 
     for name, field in cls.__fields__.items():
-        alias = field.field_info.extra.get("galias")
-        if alias:
+        if alias := field.field_info.extra.get("galias"):
             api_init_fields.add(alias)
             model_init_fields.add(name)
 

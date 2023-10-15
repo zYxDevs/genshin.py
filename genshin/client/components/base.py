@@ -78,7 +78,7 @@ class BaseClient(abc.ABC):
             default_game=self.default_game and self.default_game.value,
             hoyolab_id=self.hoyolab_id,
             uid=self.default_game and self.uid,
-            authkey=self.authkey and self.authkey[:12] + "...",
+            authkey=self.authkey and f"{self.authkey[:12]}...",
             proxy=self.proxy,
             debug=self.debug,
         )
@@ -516,7 +516,7 @@ class BaseClient(abc.ABC):
 
         data = await self.request_webstatic(url.format(lang=lang), cache=cache_key)
         for k, v in data.items():
-            actual_key = str.lower(key + "/" + k)
+            actual_key = str.lower(f"{key}/{k}")
             base_model.APIModel._mi18n.setdefault(actual_key, {})[lang] = v
 
     async def update_mi18n(self, langs: typing.Iterable[str] = constants.LANGS, *, force: bool = False) -> None:

@@ -1,5 +1,6 @@
 """External databases for Genshin Impact data."""
 
+
 import asyncio
 import json
 import time
@@ -34,9 +35,15 @@ if CACHE_FILE.exists() and time.time() - CACHE_FILE.stat().st_mtime < 7 * 24 * 6
         CACHE_FILE.unlink()
 
 GENSHINDATA_REPO = parse_token("aHR0cHM6Ly9naXRsYWIuY29tL0RpbWJyZWF0aC9BbmltZUdhbWVEYXRhLy0vcmF3L21hc3Rlci8=").decode()
-GENSHINDATA_CHARACTERS_URL = GENSHINDATA_REPO + "ExcelBinOutput/AvatarExcelConfigData.json"
-GENSHINDATA_TALENT_DEPOT_URL = GENSHINDATA_REPO + "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json"
-GENSHINDATA_TALENT_URL = GENSHINDATA_REPO + "ExcelBinOutput/AvatarSkillExcelConfigData.json"
+GENSHINDATA_CHARACTERS_URL = (
+    f"{GENSHINDATA_REPO}ExcelBinOutput/AvatarExcelConfigData.json"
+)
+GENSHINDATA_TALENT_DEPOT_URL = (
+    f"{GENSHINDATA_REPO}ExcelBinOutput/AvatarSkillDepotExcelConfigData.json"
+)
+GENSHINDATA_TALENT_URL = (
+    f"{GENSHINDATA_REPO}ExcelBinOutput/AvatarSkillExcelConfigData.json"
+)
 GENSHINDATA_TEXTMAP_URL = GENSHINDATA_REPO + "TextMap/TextMap{lang}.json"
 
 ENKA_CHARACTERS_URL = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/characters.json"
@@ -140,7 +147,11 @@ async def update_characters_genshindata(langs: typing.Sequence[str] = ()) -> Non
 
     for char in characters:
         for lang, textmap in zip(langs, textmaps):
-            if char["skillDepotId"] == 101 or char["iconName"].endswith("_Kate") or str(char["id"])[:2] == "11":
+            if (
+                char["skillDepotId"] == 101
+                or char["iconName"].endswith("_Kate")
+                or str(char["id"]).startswith("11")
+            ):
                 continue  # test character
 
             if char["candSkillDepotIds"]:
@@ -221,7 +232,7 @@ async def update_characters_any(
         langs = [langs]
     if lenient:
         langs = [lang for lang in langs if not model_constants.CHARACTER_NAMES.get(lang)]
-        if len(langs) == 0:
+        if not langs:
             return
 
     if len(langs) == 1:
