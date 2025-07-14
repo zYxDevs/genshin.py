@@ -716,6 +716,20 @@ cli = [
 cookies = [
     { name = "browser-cookie3" },
 ]
+redis = [
+    { name = "aioredis" },
+]
+socks-proxy = [
+    { name = "aiohttp-socks" },
+]
+sqlite = [
+    { name = "aiosqlite" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "nox" },
+]
 docs = [
     { name = "mkdocs-material" },
     { name = "pdoc3" },
@@ -731,28 +745,14 @@ pytest = [
     { name = "pytest-cov" },
     { name = "pytest-dotenv" },
 ]
-redis = [
-    { name = "aioredis" },
-]
 reformat = [
     { name = "black" },
     { name = "ruff" },
-]
-socks-proxy = [
-    { name = "aiohttp-socks" },
-]
-sqlite = [
-    { name = "aiosqlite" },
 ]
 typecheck = [
     { name = "mypy" },
     { name = "pyright" },
     { name = "types-click" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "nox" },
 ]
 
 [package.metadata]
@@ -764,35 +764,43 @@ requires-dist = [
     { name = "aioredis", marker = "extra == 'redis'", specifier = ">=2.0.1" },
     { name = "aiosqlite", marker = "extra == 'all'", specifier = ">=0.17.0" },
     { name = "aiosqlite", marker = "extra == 'sqlite'", specifier = ">=0.17.0" },
-    { name = "black", marker = "extra == 'reformat'", specifier = ">=24.8.0" },
     { name = "browser-cookie3", marker = "extra == 'all'", specifier = ">=0.19.1" },
     { name = "browser-cookie3", marker = "extra == 'cookies'", specifier = ">=0.19.1" },
     { name = "click", marker = "extra == 'all'", specifier = ">=8.1.7" },
     { name = "click", marker = "extra == 'cli'", specifier = ">=8.1.7" },
-    { name = "coverage", extras = ["toml"], marker = "extra == 'pytest'", specifier = ">=7.6.1" },
-    { name = "devtools", marker = "extra == 'pytest'", specifier = ">=0.12.2" },
-    { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.5.38" },
-    { name = "mypy", marker = "extra == 'typecheck'", specifier = ">=1.11.2" },
-    { name = "pdoc3", marker = "extra == 'docs'", specifier = ">=0.11.1" },
     { name = "pydantic", specifier = "==2.*" },
-    { name = "pyright", marker = "extra == 'typecheck'", specifier = ">=1.1.382.post0" },
-    { name = "pytest", marker = "extra == 'pytest'", specifier = ">=8.3.3" },
-    { name = "pytest-asyncio", marker = "extra == 'pytest'", specifier = ">=0.24.0" },
-    { name = "pytest-cov", marker = "extra == 'pytest'", specifier = ">=5.0.0" },
-    { name = "pytest-dotenv", marker = "extra == 'pytest'", specifier = ">=0.5.2" },
     { name = "qrcode", extras = ["pil"], marker = "extra == 'all'", specifier = ">=7.4.2" },
     { name = "qrcode", extras = ["pil"], marker = "extra == 'auth'", specifier = ">=7.4.2" },
     { name = "rsa", marker = "extra == 'all'", specifier = ">=4.9" },
     { name = "rsa", marker = "extra == 'auth'", specifier = ">=4.9" },
-    { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.6.8" },
-    { name = "ruff", marker = "extra == 'reformat'", specifier = ">=0.6.8" },
     { name = "tenacity", specifier = "==9.*" },
-    { name = "types-click", marker = "extra == 'typecheck'", specifier = ">=7.1.8" },
 ]
-provides-extras = ["all", "cookies", "auth", "cli", "socks-proxy", "docs", "lint", "pytest", "reformat", "typecheck", "redis", "sqlite"]
+provides-extras = ["all", "cookies", "auth", "cli", "socks-proxy", "redis", "sqlite"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "nox", specifier = ">=2024.4.15" }]
+docs = [
+    { name = "mkdocs-material", specifier = ">=9.5.38" },
+    { name = "pdoc3", specifier = ">=0.11.1" },
+]
+lint = [{ name = "ruff", specifier = ">=0.6.8" }]
+pytest = [
+    { name = "coverage", extras = ["toml"], specifier = ">=7.6.1" },
+    { name = "devtools", specifier = ">=0.12.2" },
+    { name = "pytest", specifier = ">=8.3.3" },
+    { name = "pytest-asyncio", specifier = ">=0.24.0" },
+    { name = "pytest-cov", specifier = ">=5.0.0" },
+    { name = "pytest-dotenv", specifier = ">=0.5.2" },
+]
+reformat = [
+    { name = "black", specifier = ">=24.8.0" },
+    { name = "ruff", specifier = ">=0.6.8" },
+]
+typecheck = [
+    { name = "mypy", specifier = ">=1.11.2" },
+    { name = "pyright", specifier = ">=1.1.382.post0" },
+    { name = "types-click", specifier = ">=7.1.8" },
+]
 
 [[package]]
 name = "ghp-import"
