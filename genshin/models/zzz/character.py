@@ -66,6 +66,10 @@ class ZZZPartialAgent(ZZZBaseAgent):
     rank: int
     """Also known as Mindscape Cinema in-game."""
 
+    @property
+    def banner_icon(self) -> str:
+        return f"https://act-webstatic.hoyoverse.com/game_record/zzzv2/role_vertical_painting/role_vertical_painting_{self.id}.png"
+
 
 class ZZZPropertyType(enum.IntEnum):
     """ZZZ property type."""
