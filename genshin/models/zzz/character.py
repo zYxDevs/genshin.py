@@ -55,26 +55,8 @@ class ZZZBaseAgent(APIModel, Unique):
     full_name: str = Aliased("full_name_mi18n")
     specialty: ZZZSpecialty = Aliased("avatar_profession")
     faction_icon: str = Aliased("group_icon_path")
-    flat_icon: str = Aliased("hollow_icon_path")
-
-    @property
-    def base_icon_url(self) -> str:
-        return "https://act-webstatic.hoyoverse.com/game_record/zzzv2"
-
-    @property
-    def square_icon(self) -> str:
-        """Example: https://act-webstatic.hoyoverse.com/game_record/zzz/role_square_avatar/role_square_avatar_1131.png"""
-        return f"{self.base_icon_url}/role_square_avatar/role_square_avatar_{self.id}.png"
-
-    @property
-    def rectangle_icon(self) -> str:
-        """Example: https://act-webstatic.hoyoverse.com/game_record/zzz/role_rectangle_avatar/role_rectangle_avatar_1131.png"""
-        return f"{self.base_icon_url}/role_rectangle_avatar/role_rectangle_avatar_{self.id}.png"
-
-    @property
-    def banner_icon(self) -> str:
-        """Example: https://act-webstatic.hoyoverse.com/game_record/zzz/role_vertical_painting/role_vertical_painting_1131.png"""
-        return f"{self.base_icon_url}/role_vertical_painting/role_vertical_painting_{self.id}.png"
+    rectangle_icon: str = Aliased("hollow_icon_path")
+    square_icon: str = Aliased("role_square_url")
 
 
 class ZZZPartialAgent(ZZZBaseAgent):
@@ -246,3 +228,5 @@ class ZZZFullAgent(ZZZBaseAgent):
     skills: typing.Sequence[AgentSkill]
     ranks: typing.Sequence[ZZZAgentRank]
     """Also known as Mindscape Cinemas in-game."""
+
+    banner_icon: str = Aliased("role_vertical_painting_url")
