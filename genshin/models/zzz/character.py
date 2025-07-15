@@ -230,3 +230,8 @@ class ZZZFullAgent(ZZZBaseAgent):
     """Also known as Mindscape Cinemas in-game."""
 
     banner_icon: str = Aliased("role_vertical_painting_url")
+
+    @property
+    def is_wearing_outfit(self) -> bool:
+        """Whether the character is wearing an outfit."""
+        return not self.banner_icon.endswith(f"{self.id}.png")
