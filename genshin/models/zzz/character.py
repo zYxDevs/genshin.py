@@ -236,14 +236,14 @@ class ZZZFullAgent(ZZZBaseAgent):
     banner_icon: str = Aliased("role_vertical_painting_url")
 
     @staticmethod
-    def _extract_skin_id(url: str) -> typing.Optional[str]:
+    def _extract_skin_id(url: str) -> typing.Optional[int]:
         filename = url.split("/")[-1].split(".")[0]
         parts = filename.split("_")
 
         if len(parts) >= 5:
-            return parts[-1]
+            return int(parts[-1])
         return None
 
     @property
-    def outfit_id(self) -> typing.Optional[str]:
+    def outfit_id(self) -> typing.Optional[int]:
         return self._extract_skin_id(self.banner_icon)
