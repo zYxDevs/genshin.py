@@ -1,8 +1,11 @@
-name: Biweekly Release
+name: Create Release
 
 on:
-  schedule:
-    - cron: '0 0 1,15 * *'
+  push:
+    branches:
+      - master
+    paths:
+      - pyproject.toml
   workflow_dispatch:
 
 jobs:
@@ -14,11 +17,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update version number
-        uses: seriaati/update-ver-num@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-        
       - name: Create release
         uses: seriaati/create-release@main
         with:
