@@ -235,7 +235,15 @@ class ZZZFullAgent(ZZZBaseAgent):
 
     banner_icon: str = Aliased("role_vertical_painting_url")
 
+    @staticmethod
+    def _extract_skin_id(url: str) -> typing.Optional[str]:
+        filename = url.split("/")[-1].split(".")[0]
+        parts = filename.split("_")
+
+        if len(parts) >= 5:
+            return parts[-1]
+        return None
+
     @property
-    def is_wearing_outfit(self) -> bool:
-        """Whether the character is wearing an outfit."""
-        return not self.banner_icon.endswith(f"{self.id}.png")
+    def outfit_id(self) -> typing.Optional[str]:
+        return self._extract_skin_id(self.banner_icon)
