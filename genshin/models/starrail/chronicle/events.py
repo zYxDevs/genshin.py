@@ -46,6 +46,7 @@ class HSREventStatus(Enum):
     SIGN_STATUS_SIGNED_TODAY = "SignStatusSignedToday"
     SIGN_STATUS_UNCLAIMED = "SignStatusUnclaimed"
     SIGN_STATUS_FINISH = "SignStatusFinish"
+    DOUBLE_REWARD_ACT_STATUS_PROGRESS = "DoubleRewardActStatusProgress"
     DOUBLE_REWARD_ACT_STATUS_UNOPENED = "DoubleRewardActStatusUnopened"
     OTHER_ACT_STATUS_FINISH = "OtherActStatusFinish"
 
