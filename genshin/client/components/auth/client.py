@@ -90,7 +90,10 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
         - AccountLoginFail: Invalid password provided.
         - AccountDoesNotExist: Invalid email/username.
         """
-        result = await self._os_web_login(account, password, encrypted=encrypted, token_type=token_type)
+        device_id = self.generate_web_device_id()
+        result = await self._os_web_login(
+            account, password, encrypted=encrypted, token_type=token_type, device_id=device_id
+        )
 
         if not isinstance(result, SessionMMT):
             # Captcha not triggered
@@ -102,7 +105,7 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
             mmt_result = await server.solve_geetest(result, port=port)
 
         return await self._os_web_login(
-            account, password, encrypted=encrypted, token_type=token_type, mmt_result=mmt_result
+            account, password, encrypted=encrypted, token_type=token_type, mmt_result=mmt_result, device_id=device_id
         )
 
     @base.region_specific(types.Region.CHINESE)
@@ -203,7 +206,8 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
         - AccountDoesNotExist: Invalid email/username.
         - VerificationCodeRateLimited: Too many verification code requests.
         """
-        result = await self._app_login(account, password, encrypted=encrypted)
+        device_id = self.generate_app_device_id()
+        result = await self._app_login(account, password, device_id=device_id, encrypted=encrypted)
 
         if isinstance(result, SessionMMT):
             # Captcha triggered
@@ -212,7 +216,9 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
             else:
                 mmt_result = await server.solve_geetest(result, port=port)
 
-            result = await self._app_login(account, password, encrypted=encrypted, mmt_result=mmt_result)
+            result = await self._app_login(
+                account, password, device_id=device_id, encrypted=encrypted, mmt_result=mmt_result
+            )
 
         if isinstance(result, ActionTicket):
             # Email verification required
@@ -226,7 +232,7 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
             code = await server.enter_code(port=port)
             await self._verify_email(code, result)
 
-            result = await self._app_login(account, password, encrypted=encrypted, ticket=result)
+            result = await self._app_login(account, password, device_id=device_id, encrypted=encrypted, ticket=result)
 
         return result
 

@@ -25,12 +25,18 @@ __all__ = ["AppAuthClient"]
 class AppAuthClient(base.BaseClient):
     """App sub client for AuthClient."""
 
+    @staticmethod
+    def generate_app_device_id() -> str:
+        """Generate a random device ID for app login."""
+        return "".join(random.choices(string.ascii_lowercase + string.digits, k=16))
+
     @typing.overload
     async def _app_login(  # noqa: D102 missing docstring in overload?
         self,
         account: str,
         password: str,
         *,
+        device_id: str,
         encrypted: bool = ...,
         mmt_result: SessionMMTResult,
         ticket: None = ...,
@@ -42,6 +48,7 @@ class AppAuthClient(base.BaseClient):
         account: str,
         password: str,
         *,
+        device_id: str,
         encrypted: bool = ...,
         mmt_result: None = ...,
         ticket: ActionTicket,
@@ -53,6 +60,7 @@ class AppAuthClient(base.BaseClient):
         account: str,
         password: str,
         *,
+        device_id: str,
         encrypted: bool = ...,
         mmt_result: None = ...,
         ticket: None = ...,
@@ -63,6 +71,7 @@ class AppAuthClient(base.BaseClient):
         account: str,
         password: str,
         *,
+        device_id: str,
         encrypted: bool = False,
         mmt_result: typing.Optional[SessionMMTResult] = None,
         ticket: typing.Optional[ActionTicket] = None,
@@ -83,8 +92,9 @@ class AppAuthClient(base.BaseClient):
             # For some reason, without this header, email verification is not triggered.
             #
             # 2025/07/18: Hoyo found this issue and fixed it, we now have to provide this header.
-            # The value needs to be generated randomly, otherwise it will trigger rate limiting, see #272.
-            "x-rpc-device_id": "".join(random.choices(string.ascii_lowercase + string.digits, k=16)),
+            # This value needs to be consistent across all requests, else it will trigger email
+            # verification repeatedly.
+            "x-rpc-device_id": device_id,
         }
         if mmt_result:
             headers["x-rpc-aigis"] = mmt_result.to_aigis_header()
