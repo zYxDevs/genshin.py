@@ -223,9 +223,6 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
                 else:
                     mmt_result = await server.solve_geetest(mmt, port=port)
 
-                await asyncio.sleep(2)  # Add delay to prevent [-3206]
-                await self._send_verification_email(result, mmt_result=mmt_result)
-
             code = await server.enter_code(port=port)
             await self._verify_email(code, result)
 
