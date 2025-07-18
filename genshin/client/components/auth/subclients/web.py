@@ -5,6 +5,7 @@ Covers HoYoLAB and Miyoushe web auth endpoints.
 
 import json
 import typing
+import uuid
 
 from genshin import constants, errors, types
 from genshin.client import routes
@@ -57,6 +58,9 @@ class WebAuthClient(base.BaseClient):
         Returns either data from aigis header or cookies.
         """
         headers = {**auth_utility.WEB_LOGIN_HEADERS}
+        # If not provided, [-3104] is returned, see #272
+        headers["x-rpc-device_id"] = str(uuid.uuid4())
+
         if mmt_result:
             headers["x-rpc-aigis"] = mmt_result.to_aigis_header()
 

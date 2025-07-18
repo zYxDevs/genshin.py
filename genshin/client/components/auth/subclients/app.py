@@ -4,6 +4,8 @@ Covers HoYoLAB and Miyoushe app auth endpoints.
 """
 
 import json
+import random
+import string
 import typing
 from http.cookies import SimpleCookie
 
@@ -76,6 +78,13 @@ class AppAuthClient(base.BaseClient):
         headers = {
             **auth_utility.APP_LOGIN_HEADERS,
             "ds": ds_utility.generate_dynamic_secret(constants.DS_SALT["app_login"]),
+            # Passing "x-rpc-device_id" header will trigger email verification
+            # (unless the device_id is already verified).
+            # For some reason, without this header, email verification is not triggered.
+            #
+            # 2025/07/18: Hoyo found this issue and fixed it, we now have to provide this header.
+            # The value needs to be generated randomly, otherwise it will trigger rate limiting, see #272.
+            "x-rpc-device_id": "".join(random.choices(string.ascii_lowercase + string.digits, k=16)),
         }
         if mmt_result:
             headers["x-rpc-aigis"] = mmt_result.to_aigis_header()

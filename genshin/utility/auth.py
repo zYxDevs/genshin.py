@@ -37,8 +37,6 @@ CgGs52bFoYMtyi+xEQIDAQAB
 WEB_LOGIN_HEADERS = {
     "x-rpc-app_id": "c9oqaq3s3gu8",
     "x-rpc-client_type": "4",
-    # If not provided, [-3104] is returned, see #272
-    "x-rpc-device_id": "9e6085ef-dd58-4880-aebd-ded5c5bcb8eb",
     # If not equal account.hoyolab.com It's will return retcode 1200 [Unauthorized]
     "Origin": "https://account.hoyolab.com",
     "Referer": "https://account.hoyolab.com/",
@@ -47,12 +45,6 @@ WEB_LOGIN_HEADERS = {
 APP_LOGIN_HEADERS = {
     "x-rpc-app_id": "c9oqaq3s3gu8",
     "x-rpc-client_type": "2",
-    # Passing "x-rpc-device_id" header will trigger email verification
-    # (unless the device_id is already verified).
-    #
-    # For some reason, without this header, email verification is not triggered.
-    # 2025/07/18: Hoyo found this issue and fixed it, we now have to provide this header.
-    "x-rpc-device_id": "1c33337bd45c1bfs",
 }
 
 CN_LOGIN_HEADERS = {
