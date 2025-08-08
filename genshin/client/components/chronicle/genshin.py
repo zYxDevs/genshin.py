@@ -375,17 +375,34 @@ class GenshinBattleChronicleClient(base.BaseBattleChronicleClient):
 
     @typing.overload
     async def get_stygian_onslaught(
-        self, uid: typing.Optional[int] = ..., *, lang: typing.Optional[str] = ..., raw: typing.Literal[False] = ...
+        self,
+        uid: typing.Optional[int] = ...,
+        *,
+        lang: typing.Optional[str] = ...,
+        raw: typing.Literal[False] = ...,
+        need_detail: bool = ...,
     ) -> list[models.HardChallenge]: ...
     @typing.overload
     async def get_stygian_onslaught(
-        self, uid: typing.Optional[int] = ..., *, lang: typing.Optional[str] = ..., raw: typing.Literal[True] = ...
+        self,
+        uid: typing.Optional[int] = ...,
+        *,
+        lang: typing.Optional[str] = ...,
+        raw: typing.Literal[True] = ...,
+        need_detail: bool = ...,
     ) -> list[typing.Mapping[str, typing.Any]]: ...
     async def get_stygian_onslaught(
-        self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None, raw: bool = False
+        self,
+        uid: typing.Optional[int] = None,
+        *,
+        lang: typing.Optional[str] = None,
+        raw: bool = False,
+        need_detail: bool = True,
     ) -> typing.Union[list[models.HardChallenge], list[typing.Mapping[str, typing.Any]]]:
         """Get Stygian Onslaught data."""
-        data = await self._request_genshin_record("hard_challenge", uid, lang=lang, payload={"need_detail": "true"})
+        data = await self._request_genshin_record(
+            "hard_challenge", uid, lang=lang, payload={"need_detail": str(need_detail).lower()}
+        )
         if raw:
             return data["data"]
         return [models.HardChallenge(**item) for item in data["data"] if item["schedule"]["is_valid"]]
