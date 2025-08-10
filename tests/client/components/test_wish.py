@@ -15,7 +15,7 @@ async def test_merged_wish_history(lclient: genshin.Client, authkey: str):
 
 
 async def test_banner_types(lclient: genshin.Client, authkey: str):
-    banner_types = await lclient.get_banner_names()
+    banner_types = await lclient.get_genshin_banner_names()
     assert sorted(banner_types.keys()) == [100, 200, 301, 302]
 
 
