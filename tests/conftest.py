@@ -149,7 +149,7 @@ async def lclient(local_cookies: typing.Mapping[str, str], cache: genshin.Cache)
     client.default_game = genshin.Game.GENSHIN
     client.set_cookies(local_cookies)
     try:
-        client.set_authkey()
+        client.set_authkey(os.getenv("GENSHIN_AUTHKEY"))
     except (FileNotFoundError, ValueError):
         pass
 
