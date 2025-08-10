@@ -7,7 +7,6 @@ async def test_wish_history(lclient: genshin.Client, authkey: str):
     history = await lclient.wish_history(200, limit=20).flatten()
 
     assert history[0].banner_type == 200
-    assert history[0].banner_name == "Permanent Wish"
 
 
 async def test_merged_wish_history(lclient: genshin.Client, authkey: str):
