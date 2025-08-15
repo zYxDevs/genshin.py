@@ -717,7 +717,7 @@ wheels = [
 
 [[package]]
 name = "genshin"
-version = "1.7.16"
+version = "1.7.17"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
