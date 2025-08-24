@@ -190,6 +190,9 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
         encrypted: bool = False,
         port: int = 5000,
         geetest_solver: typing.Optional[typing.Callable[[SessionMMT], typing.Awaitable[SessionMMTResult]]] = None,
+        device_id: typing.Optional[str] = None,
+        device_model: typing.Optional[str] = None,
+        device_name: typing.Optional[str] = None,
     ) -> AppLoginResult:
         """Login with a password via HoYoLab app endpoint.
 
@@ -206,8 +209,15 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
         - AccountDoesNotExist: Invalid email/username.
         - VerificationCodeRateLimited: Too many verification code requests.
         """
-        device_id = self.generate_app_device_id()
-        result = await self._app_login(account, password, device_id=device_id, encrypted=encrypted)
+        device_id = device_id or self.generate_app_device_id()
+        result = await self._app_login(
+            account,
+            password,
+            device_id=device_id,
+            device_name=device_name,
+            device_model=device_model,
+            encrypted=encrypted,
+        )
 
         if isinstance(result, SessionMMT):
             # Captcha triggered
@@ -217,7 +227,13 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
                 mmt_result = await server.solve_geetest(result, port=port)
 
             result = await self._app_login(
-                account, password, device_id=device_id, encrypted=encrypted, mmt_result=mmt_result
+                account,
+                password,
+                device_id=device_id,
+                device_name=device_name,
+                device_model=device_model,
+                encrypted=encrypted,
+                mmt_result=mmt_result,
             )
 
         if isinstance(result, ActionTicket):
@@ -232,7 +248,15 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
             code = await server.enter_code(port=port)
             await self._verify_email(code, result)
 
-            result = await self._app_login(account, password, device_id=device_id, encrypted=encrypted, ticket=result)
+            result = await self._app_login(
+                account,
+                password,
+                device_id=device_id,
+                device_name=device_name,
+                device_model=device_model,
+                encrypted=encrypted,
+                ticket=result,
+            )
 
         return result
 

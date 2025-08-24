@@ -37,6 +37,8 @@ class AppAuthClient(base.BaseClient):
         password: str,
         *,
         device_id: str,
+        device_name: typing.Optional[str] = ...,
+        device_model: typing.Optional[str] = ...,
         encrypted: bool = ...,
         mmt_result: SessionMMTResult,
         ticket: None = ...,
@@ -49,6 +51,8 @@ class AppAuthClient(base.BaseClient):
         password: str,
         *,
         device_id: str,
+        device_name: typing.Optional[str] = ...,
+        device_model: typing.Optional[str] = ...,
         encrypted: bool = ...,
         mmt_result: None = ...,
         ticket: ActionTicket,
@@ -61,6 +65,8 @@ class AppAuthClient(base.BaseClient):
         password: str,
         *,
         device_id: str,
+        device_name: typing.Optional[str] = ...,
+        device_model: typing.Optional[str] = ...,
         encrypted: bool = ...,
         mmt_result: None = ...,
         ticket: None = ...,
@@ -72,6 +78,8 @@ class AppAuthClient(base.BaseClient):
         password: str,
         *,
         device_id: str,
+        device_name: typing.Optional[str] = None,
+        device_model: typing.Optional[str] = None,
         encrypted: bool = False,
         mmt_result: typing.Optional[SessionMMTResult] = None,
         ticket: typing.Optional[ActionTicket] = None,
@@ -101,6 +109,11 @@ class AppAuthClient(base.BaseClient):
 
         if ticket:
             headers["x-rpc-verify"] = ticket.to_rpc_verify_header()
+
+        if device_name:
+            headers["x-rpc-device_name"] = device_name
+        if device_model:
+            headers["x-rpc-device_model"] = device_model
 
         payload = {
             "account": account if encrypted else auth_utility.encrypt_credentials(account, 1),
