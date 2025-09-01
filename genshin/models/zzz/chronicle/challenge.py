@@ -159,6 +159,18 @@ class ShiyuDefense(APIModel):
     ) -> typing.Mapping[typing.Literal["S", "A", "B"], int]:
         return {d["rating"]: d["times"] for d in v}
 
+    @pydantic.computed_field
+    @property
+    def total_clear_time(self) -> int:
+        """Total clear time for all floors in seconds."""
+        total = 0
+        for floor in self.floors:
+            for node in (floor.node_1, floor.node_2):
+                if node.battle_time is None:
+                    continue
+                total += int(node.battle_time.total_seconds())
+        return total
+
 
 class DeadlyAssaultBoss(APIModel):
     """ZZZ Deadly Assault boss."""
