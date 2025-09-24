@@ -225,8 +225,8 @@ class HSRChallenge(HSRBaseEvent):
     show_text: str
 
     @pydantic.field_validator("special_reward", mode="after")
-    def __validate_special_reward(cls, v: HSREventReward) -> typing.Optional[HSREventReward]:
-        if v.id == 0:
+    def __validate_special_reward(cls, v: typing.Optional[HSREventReward]) -> typing.Optional[HSREventReward]:
+        if v is not None and v.id == 0:
             return None
         return v
 
