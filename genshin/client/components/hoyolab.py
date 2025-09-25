@@ -475,14 +475,6 @@ class HoyolabClient(base.BaseClient):
             method="POST",
         )
 
-    async def get_replies(self, *, size: int = 15) -> typing.Sequence[models.Reply]:
-        """Get the latest replies as a list of tuples, where the first element is the reply ID and the second is the content."""
-        data = await self.request_bbs(
-            "community/post/wapi/userReply",
-            params=dict(size=size),
-        )
-        return [models.Reply(**i["reply"]) for i in data["list"]]
-
     async def _request_join(self, topic_id: int, *, is_cancel: bool) -> None:
         await self.request_bbs(
             "community/topic/wapi/join",
