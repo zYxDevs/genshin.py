@@ -51,7 +51,7 @@ class StarRailChallengeFloor(APIModel):
     star_num: int
     is_quick_clear: bool = Aliased("is_fast")
 
-    @pydantic.computed_field
+    @pydantic.computed_field  # type: ignore[prop-decorator]
     @property
     def stars(self) -> int:
         """Number of stars earned on the floor."""
