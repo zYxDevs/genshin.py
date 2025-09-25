@@ -215,6 +215,16 @@ def miyoushe_uid():
     return 75276539
 
 
+@pytest.fixture(scope="session")
+def hoyolab_topic_id():
+    return 3882
+
+
+@pytest.fixture(scope="session")
+def hoyolab_post_id():
+    return 41326930
+
+
 def pytest_addoption(parser: pytest.Parser):
     parser.addoption("--cooperative", action="store_true")
 
