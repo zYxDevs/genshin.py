@@ -268,6 +268,9 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         data = await self._request_starrail_record("get_act_calender", uid, lang=lang, cache=True)
         return models.HSREventCalendar(**data)
 
+    get_apocalyptic_shadow = get_starrail_apc_shadow
+    """Alias for :meth:`get_starrail_apc_shadow`."""
+
     @typing.overload
     async def get_anomaly_arbitration(
         self,
