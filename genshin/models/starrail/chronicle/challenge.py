@@ -225,6 +225,7 @@ class AnomalySeason(APIModel):
 
     id: int = Aliased("group_id")
     begin_time: PartialTime
+    end_time: PartialTime
     status: str
     name: str = Aliased("name_mi18n")
     game_version: str
