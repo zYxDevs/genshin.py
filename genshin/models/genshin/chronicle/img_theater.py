@@ -69,8 +69,8 @@ class Act(APIModel):
     round_id: int
     finish_time: int  # As timestamp
     finish_datetime: TZDateTime = Aliased("finish_date_time")
-    is_arcana: bool = Aliased("is_tarot")
-    arcana_number: int = Aliased("tarot_serial_no")
+    is_arcana: bool = Aliased("is_tarot", default=False)
+    arcana_number: typing.Optional[int] = Aliased("tarot_serial_no", default=None)
 
     @pydantic.field_validator("finish_datetime", mode="before")
     def __parse_datetime(cls, value: typing.Mapping[str, typing.Any]) -> datetime.datetime:
