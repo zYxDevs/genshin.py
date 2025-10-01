@@ -38,6 +38,7 @@ class TheaterDifficulty(enum.IntEnum):
     NORMAL = 2
     HARD = 3
     VISIONARY = 4
+    ARCANA_CHALLENGE = 5
 
 
 class ActCharacter(character.BaseCharacter):
