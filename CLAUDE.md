@@ -9,11 +9,13 @@ genshin.py is an async API wrapper for HoYoLAB and Miyoushe (米游社) APIs, su
 ## Development Commands
 
 ### Setup
+
 ```bash
 pip install nox
 ```
 
 ### Testing
+
 ```bash
 # Run all default tasks (reformat, lint, type-check, verify-types, test)
 nox -s
@@ -36,23 +38,27 @@ nox -s test -- -k "genshin"
 ```
 
 ### Single Test Execution
+
 ```bash
 nox -s test -- tests/client/test_specific.py::test_function_name
 ```
 
 ### Type Checking
+
 ```bash
 nox -s type-check      # Run pyright and mypy
 nox -s verify-types    # Verify type completeness
 ```
 
 ### Linting and Formatting
+
 ```bash
 nox -s reformat  # Auto-fix with black and ruff
 nox -s lint      # Check with ruff
 ```
 
 ### Documentation
+
 ```bash
 nox -s docs  # Generate pdoc3 documentation
 ```
@@ -103,26 +109,31 @@ Cookie handling in [client/manager/](genshin/client/manager/) supports multiple 
 ## Code Style & Conventions
 
 ### Import Style
+
 - Import entire modules rather than individual symbols (exceptions: `Aliased` and constants)
 - Use `typing.Optional` and `typing.Union` instead of `|` syntax (Python 3.9 compatibility)
 - Import `typing` module itself, not individual types
 
 ### Module Structure
+
 - All modules start with imports followed by `__all__` declaration
 - Public modules must be explicitly imported in package `__init__.py`
 - Only abstract methods may be overridden
 
 ### Type Hinting
+
 - All code must be type-complete per pyright standards
 - Functions must have full type annotations
 - Use `typing.` prefix for generics (e.g., `typing.Optional`, `typing.List`)
 
 ### Formatting
+
 - Line length: 120 characters (black/ruff enforced)
 - Follow PEP 8 with black overrides
 - Docstrings required for all exported symbols (numpy convention)
 
 ### Project-Specific Patterns
+
 - Use `Aliased()` for pydantic field aliases mapping API field names to Pythonic names
 - Models should inherit from `APIModel`
 - Use `Unique` mixin for hashable models with IDs
