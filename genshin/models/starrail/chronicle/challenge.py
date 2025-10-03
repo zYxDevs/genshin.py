@@ -272,7 +272,7 @@ class AnomalyMiniBossRecord(APIModel):
 
     id: int = Aliased("maze_id")
     has_data: bool = Aliased("has_challenge_record")
-    time: PartialTime = Aliased("challenge_time")
+    time: typing.Optional[PartialTime] = Aliased("challenge_time")
     characters: list[FloorCharacter] = Aliased("avatars")
     cycles_used: int = Aliased("round_num")
     stars: int = Aliased("star_num")
