@@ -5,6 +5,7 @@ repo_name: seriaati/genshin.py
 repo_url: https://github.com/seriaati/genshin.py
 copyright: Copyright &copy; 2025 Seria Ati & Ashleny
 watch: [mkdocs.yml, README.md, genshin]
+edit_uri: edit/main/docs/
 
 theme:
   name: material
@@ -52,14 +53,30 @@ plugins:
             - https://mkdocstrings.github.io/griffe/objects.inv
             - https://docs.pydantic.dev/latest/objects.inv
           options:
+            backlinks: tree
             docstring_style: google
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list
+            parameter_headings: true
+            relative_crossrefs: true
+            scoped_crossrefs: true
+            type_parameter_headings: true
+            show_root_heading: true
+            show_root_full_path: false
             show_root_toc_entry: false
             show_symbol_type_heading: true
             show_if_no_docstring: true
             show_source: false
             show_bases: false
-            filters:
-              - "!^__"
+            separate_signature: true
+            signature_crossrefs: true
+            show_symbol_type_toc: true
+            show_signature_annotations: true
+            show_signature_type_parameters: true
+            summary: true
+            filters: public
+            unwrap_annotated: true
             extensions:
               - griffe_pydantic:
                   schema: false
@@ -102,7 +119,6 @@ nav:
           - reference/clients/auth.md
           - reference/clients/calculator.md
           - Battle Chronicle:
-              - reference/clients/chronicle.md
               - reference/clients/chronicle/genshin.md
               - reference/clients/chronicle/hsr.md
               - reference/clients/chronicle/honkai.md
