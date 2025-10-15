@@ -56,7 +56,7 @@ You can also install the latest development version from GitHub:
 pip install git+https://github.com/seriaati/genshin.py
 ```
 
-A new release is made every 2 weeks.
+A new release is made every month.
 
 ## Example
 
