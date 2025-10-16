@@ -135,6 +135,14 @@ class TheaterBattleStats(APIModel):
     fastest_character_list: typing.Sequence[BattleStatCharacter] = Aliased("shortest_avatar_list")
     total_cast_seconds: int = Aliased("total_use_time")
 
+    @pydantic.field_validator(
+        "max_defeat_character", "max_damage_character", "max_take_damage_character", mode="before"
+    )
+    def __none_if_empty(cls, value: dict[str, typing.Any]) -> typing.Any:
+        if not value or value.get("avatar_id", 0) == 0:
+            return None
+        return value
+
 
 class ImgTheaterData(APIModel):
     """Imaginarium theater data."""
