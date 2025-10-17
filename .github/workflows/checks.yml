@@ -7,6 +7,7 @@ on:
       - master
     paths:
       - genshin/**.py
+      - tests/**.py
       - noxfile.py
       - pyproject.toml
       - uv.lock
@@ -17,6 +18,7 @@ on:
       - master
     paths:
       - genshin/**.py
+      - tests/**.py
       - noxfile.py
       - pyproject.toml
       - uv.lock
