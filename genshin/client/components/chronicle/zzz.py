@@ -314,8 +314,8 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         uid: typing.Optional[int] = ...,
         *,
         lang: typing.Optional[str] = ...,
-        raw: typing.Literal[False] = ...,
-    ) -> models.ThresholdSimulation: ...
+        raw: typing.Literal[True] = ...,
+    ) -> typing.Mapping[str, typing.Any]: ...
     async def get_threshold_simulation(
         self,
         id: typing.Optional[int] = None,
