@@ -25,7 +25,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         payload: typing.Optional[typing.Mapping[str, typing.Any]] = None,
         cache: bool = False,
         is_nap_ledger: bool = False,
-        is_special_payload: bool = False,
+        use_uid_in_payload: bool = False,
     ) -> typing.Mapping[str, typing.Any]:
         """Get an arbitrary ZZZ object."""
         payload = dict(payload or {})
@@ -33,7 +33,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
 
         uid = uid or await self._get_uid(types.Game.ZZZ)
 
-        if is_nap_ledger or is_special_payload:
+        if is_nap_ledger or use_uid_in_payload:
             payload = {
                 "uid": uid,
                 "region": utility.recognize_zzz_server(uid),
@@ -277,7 +277,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
     ) -> typing.Union[models.DeadlyAssault, typing.Mapping[str, typing.Any]]:
         """Get ZZZ Shiyu defense stats."""
         payload = {"schedule_type": 2 if previous else 1}
-        data = await self._request_zzz_record("mem_detail", uid, lang=lang, payload=payload, is_special_payload=True)
+        data = await self._request_zzz_record("mem_detail", uid, lang=lang, payload=payload, use_uid_in_payload=True)
         if raw:
             return data
         return models.DeadlyAssault(**data)
@@ -286,5 +286,55 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
     ) -> models.LostVoidSummary:
         """Get ZZZ Lost Void summary."""
-        data = await self._request_zzz_record("abysss2_abstract", uid, lang=lang, is_special_payload=True)
+        data = await self._request_zzz_record("abysss2_abstract", uid, lang=lang, use_uid_in_payload=True)
         return models.LostVoidSummary(**data)
+
+    async def get_threshold_simulation_brief(
+        self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
+    ) -> models.ThresholdSimulationInfo:
+        """Get ZZZ Threshold Simulation brief info."""
+        data = await self._request_zzz_record(
+            "void_front_battle_abstract_info", uid, lang=lang, use_uid_in_payload=True
+        )
+        return models.ThresholdSimulationInfo(**data["void_front_battle_abstract_info_brief"])
+
+    @typing.overload
+    async def get_threshold_simulation(
+        self,
+        id: typing.Optional[int] = ...,
+        uid: typing.Optional[int] = ...,
+        *,
+        lang: typing.Optional[str] = ...,
+        raw: typing.Literal[False] = ...,
+    ) -> models.ThresholdSimulation: ...
+    @typing.overload
+    async def get_threshold_simulation(
+        self,
+        id: typing.Optional[int] = ...,
+        uid: typing.Optional[int] = ...,
+        *,
+        lang: typing.Optional[str] = ...,
+        raw: typing.Literal[False] = ...,
+    ) -> models.ThresholdSimulation: ...
+    async def get_threshold_simulation(
+        self,
+        id: typing.Optional[int] = None,
+        uid: typing.Optional[int] = None,
+        *,
+        lang: typing.Optional[str] = None,
+        raw: bool = False,
+    ) -> typing.Union[models.ThresholdSimulation, typing.Mapping[str, typing.Any]]:
+        """Get ZZZ Threshold Simulation stats.
+
+        If no ID is given, the latest run will be fetched.
+        """
+        if id is None:
+            brief = await self.get_threshold_simulation_brief(uid, lang=lang)
+            id = brief.id
+
+        data = await self._request_zzz_record(
+            "void_front_battle_detail", uid, lang=lang, payload={"void_front_id": id}, use_uid_in_payload=True
+        )
+        if raw:
+            return data
+        return models.ThresholdSimulation(**data)
