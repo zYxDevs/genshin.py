@@ -17,7 +17,6 @@ Downloading the package from <https://github.com/ashleney/genshin.py> will still
 ## Useful Links
 
 - [Documentation](https://gh.seria.moe/genshin.py)
-- [API Reference](https://gh.seria.moe/genshin.py/pdoc/genshin)
 - [Source Code](https://github.com/seriaati/genshin.py)
 - [Discord Server](https://discord.gg/sMkSKRPuCR)
 

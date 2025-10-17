@@ -4,9 +4,7 @@ Modern API wrapper for HoYoLAB & Miyoushe(米游社) API built on asyncio and py
 
 ---
 
-Documentation: <https://seriaati.github.io/genshin.py>
-
-API Reference: <https://seriaati.github.io/genshin.py/pdoc/genshin>
+Documentation: <https://gh.seria.moe/genshin.py>
 
 Source Code: <https://github.com/seriaati/genshin.py>
 
