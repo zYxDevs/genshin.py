@@ -56,6 +56,7 @@ ELEMENTS_MAP = {
     "Water": "Hydro",
     "Rock": "Geo",
     "Grass": "Dendro",
+    None: "None",
 }
 RARITY_MAP = {
     "QUALITY_PURPLE": 4,
