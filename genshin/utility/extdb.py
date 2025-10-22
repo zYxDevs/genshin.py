@@ -48,7 +48,7 @@ ENKA_LOC_URL = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/st
 AMBR_URL = "https://gi.yatta.moe/api/v2/{lang}/avatar"
 AMBR_VERSION_URL = "https://gi.yatta.moe/api/v2/static/version"
 
-ELEMENTS_MAP = {
+ELEMENTS_MAP: typing.Final[dict[typing.Optional[str], str]] = {
     "Fire": "Pyro",
     "Wind": "Anemo",
     "Ice": "Cryo",
