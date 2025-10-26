@@ -143,7 +143,7 @@ RECORD_URL = GameRoute(
         genshin="https://sg-public-api.hoyolab.com/event/game_record/genshin/api",
         hkrpg="https://bbs-api-os.hoyolab.com/game_record/hkrpg/api",
         honkai3rd="https://bbs-api-os.hoyolab.com/game_record/honkai3rd/api",
-        nap="https://sg-act-nap-api.hoyolab.com/event/game_record_zzz/api/zzz",
+        nap="https://sg-public-api.hoyolab.com/event/game_record_zzz/api/zzz",
     ),
     chinese=dict(
         genshin="https://api-takumi-record.mihoyo.com/game_record/app/genshin/api",
@@ -209,7 +209,7 @@ REWARD_URL = GameRoute(
         genshin="https://sg-hk4e-api.hoyolab.com/event/sol?act_id=e202102251931481",
         honkai3rd="https://sg-public-api.hoyolab.com/event/mani?act_id=e202110291205111",
         hkrpg="https://sg-public-api.hoyolab.com/event/luna/os?act_id=e202303301540311",
-        nap="https://sg-act-nap-api.hoyolab.com/event/luna/zzz/os?act_id=e202406031448091",
+        nap="https://sg-public-api.hoyolab.com/event/luna/zzz/os?act_id=e202406031448091",
         tot="https://sg-public-api.hoyolab.com/event/luna/os?act_id=e202202281857121",
     ),
     chinese=dict(
