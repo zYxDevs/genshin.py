@@ -29,6 +29,7 @@ class WishClient(base.BaseClient):
         game: typing.Optional[types.Game] = None,
         authkey: typing.Optional[str] = None,
         params: typing.Optional[typing.Mapping[str, typing.Any]] = None,
+        short_lang_code: bool = True,
         **kwargs: typing.Any,
     ) -> typing.Mapping[str, typing.Any]:
         """Make a request towards the gacha info endpoint."""
@@ -46,7 +47,7 @@ class WishClient(base.BaseClient):
 
         params["authkey_ver"] = 1
         params["authkey"] = urllib.parse.unquote(authkey)
-        params["lang"] = utility.create_short_lang_code(lang or self.lang)
+        params["lang"] = utility.create_short_lang_code(lang or self.lang) if short_lang_code else lang or self.lang
         params["game_biz"] = utility.get_prod_game_biz(self.region, game)
 
         return await self.request(url, params=params, **kwargs)
@@ -63,6 +64,8 @@ class WishClient(base.BaseClient):
         """Get a single page of wishes."""
         if banner_type in FATE_BANNER_TYPES:
             endpoint = "getLdGachaLog"
+        elif isinstance(banner_type, models.MWBannerType):
+            endpoint = "getBeyondGachaLog"
         else:
             endpoint = "getGachaLog"
 
@@ -72,13 +75,22 @@ class WishClient(base.BaseClient):
             game=game,
             authkey=authkey,
             params=dict(gacha_type=banner_type, real_gacha_type=banner_type, size=20, end_id=end_id),
+            short_lang_code=not isinstance(banner_type, models.MWBannerType),
         )
 
         if game is types.Game.GENSHIN:
             # Genshin doesn't return timezone data
             # America: UTC-5, Europe: UTC+1, others are UTC+8
             tz_offsets = {"os_usa": -13, "os_euro": -7}
-            tz_offset = tz_offsets.get(data["region"], 0)
+
+            try:
+                if isinstance(banner_type, models.MWBannerType):
+                    # MW has region inside the wish item
+                    tz_offset = tz_offsets.get(data["list"][0]["region"], 0)
+                else:
+                    tz_offset = tz_offsets.get(data["region"], 0)
+            except (KeyError, IndexError):
+                tz_offset = 0
         else:
             tz_offset = data["region_time_zone"]
             if game is types.Game.STARRAIL:
@@ -103,6 +115,24 @@ class WishClient(base.BaseClient):
             game=types.Game.GENSHIN,
         )
         return [models.Wish(**i, banner_type=banner_type, tz_offset=tz_offset) for i in data]
+
+    async def _get_mw_wish_page(
+        self,
+        end_id: int,
+        banner_type: models.MWBannerType,
+        *,
+        lang: typing.Optional[str] = None,
+        authkey: typing.Optional[str] = None,
+    ) -> typing.Sequence[models.MWWish]:
+        """Get a single page of Miliastra Wonderland wishes."""
+        data, tz_offset = await self._get_gacha_page(
+            end_id=end_id,
+            banner_type=banner_type,
+            lang=lang,
+            authkey=authkey,
+            game=types.Game.GENSHIN,
+        )
+        return [models.MWWish(**i, banner_type=banner_type, tz_offset=tz_offset) for i in data]
 
     async def _get_warp_page(
         self,
@@ -164,6 +194,41 @@ class WishClient(base.BaseClient):
                     functools.partial(
                         self._get_wish_page,
                         banner_type=typing.cast(models.GenshinBannerType, banner),
+                        lang=lang,
+                        authkey=authkey,
+                    ),
+                    limit=limit,
+                    end_id=end_id,
+                )
+            )
+
+        if len(iterators) == 1:
+            return iterators[0]
+
+        return paginators.MergedPaginator(iterators, key=lambda wish: wish.time.timestamp())
+
+    def mw_wish_history(
+        self,
+        banner_type: typing.Optional[typing.Union[int, typing.Sequence[int]]] = None,
+        *,
+        limit: typing.Optional[int] = None,
+        lang: typing.Optional[str] = None,
+        authkey: typing.Optional[str] = None,
+        end_id: int = 0,
+    ) -> paginators.Paginator[models.MWWish]:
+        """Get the Miliastra Wonderland wish history of a user."""
+        banner_types = banner_type or list(models.MWBannerType)
+
+        if not isinstance(banner_types, typing.Sequence):
+            banner_types = [banner_types]
+
+        iterators: list[paginators.Paginator[models.MWWish]] = []
+        for banner in banner_types:
+            iterators.append(
+                paginators.CursorPaginator(
+                    functools.partial(
+                        self._get_mw_wish_page,
+                        banner_type=typing.cast(models.MWBannerType, banner),
                         lang=lang,
                         authkey=authkey,
                     ),

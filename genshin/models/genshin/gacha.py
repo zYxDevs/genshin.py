@@ -15,6 +15,8 @@ __all__ = [
     "BannerDetailsUpItem",
     "GachaItem",
     "GenshinBannerType",
+    "MWBannerType",
+    "MWWish",
     "SignalSearch",
     "StarRailBannerType",
     "Warp",
@@ -49,6 +51,28 @@ class GenshinBannerType(enum.IntEnum):
 
     CHARACTER2 = 400
     """Character banner #2."""
+
+
+class MWBannerType(enum.IntEnum):
+    """Banner types in Genshin Miliastra Wonderland."""
+
+    STANDARD = PERMANENT = 1000
+    """Permanent standard banner."""
+
+    EVENT = 2000
+    """Event banner."""
+
+    EVENT_MALE_OUTFIT1 = 20011
+    """Male Manekin outfit banner #1."""
+
+    EVENT_MALE_OUTFIT2 = 20012
+    """Male Manekin outfit banner #2."""
+
+    EVENT_FEMALE_OUTFIT1 = 20021
+    """Female Manekin outfit banner #1."""
+
+    EVENT_FEMALE_OUTFIT2 = 20022
+    """Female Manekin outfit banner #2."""
 
 
 class StarRailBannerType(enum.IntEnum):
@@ -98,6 +122,10 @@ class BaseWish(APIModel, Unique):
     time: datetime.datetime
     """Timezone-aware time of when the wish was made"""
 
+    @pydantic.field_validator("rarity", mode="before")
+    def __cast_rarity(cls, v: typing.Any) -> int:
+        return int(v)
+
     @pydantic.field_validator("time", mode="before")
     def __parse_time(cls, v: str, info: pydantic.ValidationInfo) -> datetime.datetime:
         return datetime.datetime.fromisoformat(v).replace(
@@ -114,6 +142,18 @@ class Wish(BaseWish):
     @pydantic.field_validator("banner_type", mode="before")
     def __cast_banner_type(cls, v: typing.Any) -> int:
         return int(v)
+
+
+class MWWish(BaseWish):
+    """Wish made on Genshin Miliastra Wonderland banner."""
+
+    item_id: int
+    type: str = Aliased("item_type")
+    is_up: bool
+    name: str = Aliased("item_name")
+
+    banner_id: int = Aliased("schedule_id")
+    banner_type: MWBannerType = Aliased("op_gacha_type")
 
 
 class Warp(BaseWish):
