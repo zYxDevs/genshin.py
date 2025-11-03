@@ -208,9 +208,9 @@ REWARD_URL = GameRoute(
     overseas=dict(
         genshin="https://sg-hk4e-api.hoyolab.com/event/sol?act_id=e202102251931481",
         honkai3rd="https://sg-public-api.hoyolab.com/event/mani?act_id=e202110291205111",
-        hkrpg="https://sg-public-api.hoyolab.com/event/luna/os?act_id=e202303301540311",
+        hkrpg="https://sg-public-api.hoyolab.com/event/luna/hkrpg/os?act_id=e202303301540311",
         nap="https://sg-public-api.hoyolab.com/event/luna/zzz/os?act_id=e202406031448091",
-        tot="https://sg-public-api.hoyolab.com/event/luna/os?act_id=e202202281857121",
+        tot="https://sg-public-api.hoyolab.com/event/luna/nxx/os?act_id=e202202281857121",
     ),
     chinese=dict(
         genshin="https://api-takumi.mihoyo.com/event/luna/?act_id=e202311201442471",
