@@ -171,7 +171,7 @@ async def update_characters_enka(langs: typing.Sequence[str] = ()) -> None:
     characters, locs = await _fetch_jsons(ENKA_CHARACTERS_URL, ENKA_LOC_URL)
 
     for strid, char in characters.items():
-        if "-" in strid:
+        if "-" in strid or not char:
             continue  # traveler element
 
         for short_lang, loc in locs.items():
