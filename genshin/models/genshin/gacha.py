@@ -108,6 +108,16 @@ class ZZZBannerType(enum.IntEnum):
     BANGBOO = 5
     """Bangboo banner."""
 
+    def to_chronicle_type(self) -> str:
+        """Get the chronicle type string for this banner type."""
+        mapping = {
+            ZZZBannerType.STANDARD: "GACHA_TYPE_PERMANENT",
+            ZZZBannerType.CHARACTER: "GACHA_TYPE_CHARACTER_UP",
+            ZZZBannerType.WEAPON: "GACHA_TYPE_WEAPON_UP",
+            ZZZBannerType.BANGBOO: "GACHA_TYPE_BANGBOO",
+        }
+        return mapping[self]
+
 
 class BaseWish(APIModel, Unique):
     """Base wish model."""
@@ -181,6 +191,34 @@ class SignalSearch(BaseWish):
     @pydantic.field_validator("banner_type", mode="before")
     def __cast_banner_type(cls, v: typing.Any) -> int:
         return int(v)
+
+    @classmethod
+    def from_chronicle_data(
+        cls, data: typing.Mapping[str, typing.Any], uid: int, tz_offset: int, banner_type: ZZZBannerType
+    ) -> "SignalSearch":
+        """Create a ZZZChronicleWish from chronicle data."""
+        rarity_convert = {"S": 4, "A": 3, "B": 2}
+        wish_time = data["date"]
+        wish_dt = datetime.datetime(
+            year=wish_time["year"],
+            month=wish_time["month"],
+            day=wish_time["day"],
+            hour=wish_time["hour"],
+            minute=wish_time["minute"],
+            second=wish_time["second"],
+        )
+        converted_data = {
+            "uid": uid,
+            "id": int(data["id"]),
+            "name": data["item_name"],
+            "rank_type": rarity_convert[data["rarity"]],
+            "tz_offset": tz_offset,
+            "time": wish_dt.isoformat(),
+            "item_id": int(data["item_id"]),
+            "item_type": data["item_type"],
+            "banner_type": banner_type,
+        }
+        return cls.model_validate(converted_data)
 
 
 class BannerDetailItem(APIModel):

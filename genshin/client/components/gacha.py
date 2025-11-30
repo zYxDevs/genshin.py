@@ -165,7 +165,7 @@ class WishClient(base.BaseClient):
         lang: typing.Optional[str] = None,
         authkey: typing.Optional[str] = None,
     ) -> typing.Sequence[models.SignalSearch]:
-        """Get a single page of warps."""
+        """Get a single page of signal searches."""
         data, tz_offset = await self._get_gacha_page(
             end_id=end_id,
             banner_type=banner_type,

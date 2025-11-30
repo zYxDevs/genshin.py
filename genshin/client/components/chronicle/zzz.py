@@ -1,11 +1,14 @@
 """StarRail battle chronicle component."""
 
 import asyncio
+import functools
 import typing
 
 from genshin import errors, types, utility
 from genshin.client import routes
 from genshin.models import zzz as models
+from genshin.models.genshin import gacha as gacha_models
+from genshin import paginators
 
 from . import base
 
@@ -338,3 +341,66 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         if raw:
             return data
         return models.ThresholdSimulation(**data)
+
+    async def _get_chronicle_signal_page(
+        self,
+        end_id: int,
+        banner_type: gacha_models.ZZZBannerType,
+        *,
+        lang: typing.Optional[str] = None,
+        uid: typing.Optional[int] = None,
+    ) -> typing.Sequence[gacha_models.SignalSearch]:
+        """Get a single page of chronicle signal searches."""
+        uid = uid or await self._get_uid(types.Game.ZZZ)
+        timezone = self.get_account_timezone(game=types.Game.ZZZ, uid=uid)
+        if timezone is None:
+            msg = "Cannot find account timezone."
+            raise ValueError(msg)
+
+        data = await self._request_zzz_record(
+            "gacha_record",
+            uid,
+            lang=lang,
+            payload={"gacha_type": banner_type.to_chronicle_type(), "end_id": end_id},
+            use_uid_in_payload=True,
+        )
+        records = data.get("gacha_item_list", [])
+        return [
+            gacha_models.SignalSearch.from_chronicle_data(i, uid=uid, banner_type=banner_type, tz_offset=timezone - 8)
+            for i in records
+        ]
+
+    def chronicle_signal_history(
+        self,
+        banner_type: typing.Optional[typing.Union[int, typing.Sequence[int]]] = None,
+        *,
+        limit: typing.Optional[int] = None,
+        lang: typing.Optional[str] = None,
+        uid: typing.Optional[int] = None,
+        end_id: int = 0,
+    ) -> paginators.Paginator[gacha_models.SignalSearch]:
+        """Get the signal search history of a user."""
+        banner_types = banner_type or list(gacha_models.ZZZBannerType)
+
+        if not isinstance(banner_types, typing.Sequence):
+            banner_types = [banner_types]
+
+        iterators: list[paginators.Paginator[gacha_models.SignalSearch]] = []
+        for banner in banner_types:
+            iterators.append(
+                paginators.CursorPaginator(
+                    functools.partial(
+                        self._get_chronicle_signal_page,
+                        banner_type=typing.cast(gacha_models.ZZZBannerType, banner),
+                        lang=lang,
+                        uid=uid,
+                    ),
+                    limit=limit,
+                    end_id=end_id,
+                )
+            )
+
+        if len(iterators) == 1:
+            return iterators[0]
+
+        return paginators.MergedPaginator(iterators, key=lambda wish: wish.time.timestamp())

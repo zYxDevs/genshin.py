@@ -576,7 +576,7 @@ class BaseClient(abc.ABC):
     def get_account_timezone(
         self, *, game: typing.Optional[types.Game] = None, uid: typing.Optional[int] = None
     ) -> typing.Optional[int]:
-        """Get the timezone offset of the default game account."""
+        """Get the UTC timezone of the default game account."""
         game = game or self.game
         if game is None:
             return None
@@ -587,9 +587,9 @@ class BaseClient(abc.ABC):
 
         server = recognize_server(uid, game=game)  # type: ignore[arg-type]
 
-        for offset, servers in constants.SERVER_TIMEZONE_OFFSETS.items():
+        for tz, servers in constants.SERVER_TIMEZONES.items():
             if server in servers:
-                return offset
+                return tz
 
         return None
 
