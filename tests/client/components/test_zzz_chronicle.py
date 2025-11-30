@@ -59,3 +59,13 @@ async def test_threshold_simulation(zzz_client: genshin.Client):
 async def test_threshold_simulation_by_uid(zzz_client: genshin.Client, zzz_uid: int):
     data_by_uid = await zzz_client.get_threshold_simulation(uid=zzz_uid)
     assert data_by_uid
+
+
+async def test_zzz_event_calendar(zzz_client: genshin.Client):
+    calendar = await zzz_client.get_zzz_event_calendar()
+    assert calendar
+
+
+async def test_zzz_gacha_calendar(zzz_client: genshin.Client):
+    calendar = await zzz_client.get_zzz_gacha_calendar()
+    assert calendar
