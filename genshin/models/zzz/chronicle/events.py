@@ -12,6 +12,7 @@ __all__ = (
     "ZZZGachaCalendar",
     "ZZZGachaEvent",
     "ZZZGachaEventCharacter",
+    "ZZZGachaEventStatus",
     "ZZZGachaEventType",
     "ZZZGachaEventWeapon",
     "ZZZWeaponGachaEvent",
@@ -24,6 +25,14 @@ class ZZZEventStatus(Enum):
     IN_PROGRESS = "STATE_IN_PROGRESS"
     COMPLETED = "STATE_COMPLETED"
     NOT_STARTED = "STATE_NOT_START"
+
+
+class ZZZGachaEventStatus(Enum):
+    """ZZZ gacha event status enum."""
+
+    IN_PROGRESS = "GACHA_STATE_IN_PROGRESS"
+    COMPLETED = "GACHA_STATE_COMPLETED"
+    NOT_STARTED = "GACHA_STATE_NOT_START"
 
 
 class ZZZGachaEventType(Enum):
@@ -58,7 +67,7 @@ class ZZZGachaEvent(APIModel):
     """ZZZ gacha event model."""
 
     type: typing.Union[ZZZGachaEventType, str] = Aliased("gacha_type")
-    status: typing.Union[ZZZEventStatus, str] = Aliased("gacha_state")
+    status: typing.Union[ZZZGachaEventStatus, str] = Aliased("gacha_state")
     version: str
     """Like 2.4, 2.5."""
 
