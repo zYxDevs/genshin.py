@@ -418,3 +418,10 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         """Get ZZZ gacha calendar."""
         data = await self._request_zzz_record("gacha_calendar", uid, lang=lang, use_uid_in_payload=True)
         return models.ZZZGachaCalendar(**data)
+
+    async def get_zzz_gacha_info(
+        self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
+    ) -> models.ZZZGachaInfo:
+        """Get ZZZ gacha info."""
+        data = await self._request_zzz_record("cur_gacha_detail", uid, lang=lang, use_uid_in_payload=True)
+        return models.ZZZGachaInfo(**data)

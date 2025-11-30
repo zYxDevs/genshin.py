@@ -69,3 +69,8 @@ async def test_zzz_event_calendar(zzz_client: genshin.Client):
 async def test_zzz_gacha_calendar(zzz_client: genshin.Client):
     calendar = await zzz_client.get_zzz_gacha_calendar()
     assert calendar
+
+
+async def test_zzz_gacha_info(zzz_client: genshin.Client):
+    gacha_info = await zzz_client.get_zzz_gacha_info()
+    assert gacha_info
