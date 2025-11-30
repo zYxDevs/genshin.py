@@ -404,3 +404,17 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             return iterators[0]
 
         return paginators.MergedPaginator(iterators, key=lambda wish: wish.time.timestamp())
+
+    async def get_zzz_event_calendar(
+        self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
+    ) -> typing.Sequence[models.ZZZEvent]:
+        """Get ZZZ event calendar."""
+        data = await self._request_zzz_record("activity_calendar", uid, lang=lang, use_uid_in_payload=True)
+        return [models.ZZZEvent(**item) for item in data["activity_list"]]
+
+    async def get_zzz_gacha_calendar(
+        self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
+    ) -> models.ZZZGachaCalendar:
+        """Get ZZZ gacha calendar."""
+        data = await self._request_zzz_record("gacha_calendar", uid, lang=lang, use_uid_in_payload=True)
+        return models.ZZZGachaCalendar(**data)
