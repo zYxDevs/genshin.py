@@ -56,7 +56,6 @@ class MimoTaskType(enum.IntEnum):
     """e.g. Log into the game for 7 days"""
     ZZZ_GAME = 16
     """e.g. Reach 400 Engagement today"""
-    
 
 
 class MimoShopItemStatus(enum.IntEnum):
