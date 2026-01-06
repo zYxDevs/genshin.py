@@ -12,6 +12,10 @@ __all__ = (
     "WEngine",
     "ZZZAgentProperty",
     "ZZZAgentRank",
+    "ZZZAwakenedPotential",
+    "ZZZAwakenedPotentialInfo",
+    "ZZZAwakenedPotentialSkill",
+    "ZZZAwakenedPotentialSkillDetail",
     "ZZZBaseAgent",
     "ZZZDisc",
     "ZZZElementType",
@@ -219,6 +223,38 @@ class ZZZAgentRank(APIModel):
     unlocked: bool = Aliased("is_unlocked")
 
 
+class ZZZAwakenedPotentialSkillDetail(APIModel):
+    """ZZZ awakened potential skill detail model."""
+
+    name: str = Aliased("title")
+    description: str = Aliased("text")
+
+
+class ZZZAwakenedPotentialSkill(APIModel):
+    """ZZZ awakened potential skill model."""
+
+    type: ZZZSkillType = Aliased("skill_type")
+    title: str = Aliased("awaken_simple_info")
+    skill_details: typing.Sequence[ZZZAwakenedPotentialSkillDetail] = Aliased("skill_items")
+
+
+class ZZZAwakenedPotential(APIModel):
+    """ZZZ awakened potential model."""
+
+    level: int = Aliased("awaken_level")
+    name: str = Aliased("level_show_name")
+    buffed_skills: typing.Sequence[ZZZAwakenedPotentialSkill] = Aliased("awaken_skill_items")
+
+
+class ZZZAwakenedPotentialInfo(APIModel):
+    """ZZZ agent awakened potential info model."""
+
+    has_potential: bool = Aliased("has_awaken_system")
+    current: int = Aliased("awaken_level")
+    max: int = Aliased("awaken_max_level")
+    items: typing.Sequence[ZZZAwakenedPotential] = Aliased("skill_awaken_items")
+
+
 class ZZZFullAgent(ZZZBaseAgent):
     """Character with equipment."""
 
@@ -232,6 +268,7 @@ class ZZZFullAgent(ZZZBaseAgent):
     skills: typing.Sequence[AgentSkill]
     ranks: typing.Sequence[ZZZAgentRank]
     """Also known as Mindscape Cinemas in-game."""
+    potential: ZZZAwakenedPotentialInfo = Aliased("skill_awaken")
 
     banner_icon: str = Aliased("role_vertical_painting_url")
 
