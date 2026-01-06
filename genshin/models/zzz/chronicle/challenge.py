@@ -22,8 +22,14 @@ __all__ = (
     "ShiyuDefenseFloor",
     "ShiyuDefenseMonster",
     "ShiyuDefenseNode",
+    "ShiyuDefenseV1",
+    "ShiyuDefenseV2",
     "ShiyuMonsterElementEffect",
     "ShiyuMonsterElementEffects",
+    "ShiyuV2FifthFloor",
+    "ShiyuV2FifthFloorLayer",
+    "ShiyuV2FourthFloor",
+    "ShiyuV2FourthFloorLayer",
     "ThresholdSimulation",
     "ThresholdSimulationBangboo",
     "ThresholdSimulationBoss",
@@ -150,8 +156,8 @@ class ShiyuDefenseFloor(APIModel):
         return None
 
 
-class ShiyuDefense(APIModel):
-    """ZZZ Shiyu Defense model."""
+class ShiyuDefenseV1(APIModel):
+    """ZZZ Shiyu Defense V1 model."""
 
     schedule_id: int
     begin_time: typing.Optional[DateTime] = Aliased("hadal_begin_time")
@@ -181,6 +187,80 @@ class ShiyuDefense(APIModel):
                     continue
                 total += int(node.battle_time.total_seconds())
         return total
+
+
+ShiyuDefense = ShiyuDefenseV1  # Backward compatibility
+
+
+class ShiyuV2FifthFloorLayer(APIModel):
+    """ZZZ Shiyu Defense V2 fifth floor layer model."""
+
+    id: int = Aliased("layer_id")
+    rating: typing.Literal["S", "A", "B"]
+    buff: ShiyuDefenseBuff = Aliased("buffer")
+    score: int
+    max_score: int
+    clear_time: int = Aliased("battle_time")
+    """Clear time in seconds."""
+    boss_icon: str = Aliased("monster_pic")
+    bangboo: typing.Optional[ShiyuDefenseBangboo] = Aliased("buddy", default=None)
+    characters: typing.Sequence[ShiyuDefenseCharacter] = Aliased("avatar_list")
+
+
+class ShiyuV2FifthFloor(APIModel):
+    """ZZZ Shiyu Defense V2 fifth floor model."""
+
+    layers: typing.Sequence[ShiyuV2FifthFloorLayer] = Aliased("layer_challenge_info_list")
+
+
+class ShiyuV2FourthFloorLayer(APIModel):
+    """ZZZ Shiyu Defense V2 fourth floor layer model."""
+
+    id: int = Aliased("layer_id")
+    clear_time: int = Aliased("battle_time")
+    """Clear time in seconds."""
+    characters: typing.Sequence[ShiyuDefenseCharacter] = Aliased("avatar_list")
+    bangboo: typing.Optional[ShiyuDefenseBangboo] = Aliased("buddy", default=None)
+
+
+class ShiyuV2FourthFloor(APIModel):
+    """ZZZ Shiyu Defense V2 fourth floor model."""
+
+    buff: ShiyuDefenseBuff = Aliased("buffer")
+    challenge_time: DateTime
+    rating: typing.Literal["S", "A", "B"]
+    layers: typing.Sequence[ShiyuV2FourthFloorLayer] = Aliased("layer_challenge_info_list")
+
+
+class ShiyuV2BriefInfo(APIModel):
+    """ZZZ Shiyu Defense V2 brief info."""
+
+    score: int
+    max_score: int
+    rank_percent: str
+    total_clear_time: int = Aliased("battle_time")
+    rating: typing.Literal["S+", "S", "A", "B"]
+    challenge_time: DateTime
+
+    @pydantic.field_validator("rank_percent", mode="before")
+    def __parse_rank_percent(cls, value: int) -> str:
+        return f"{value / 100}%"
+
+
+class ShiyuDefenseV2(APIModel):
+    """ZZZ Shiyu Defense V2 model."""
+
+    schedule_id: int = Aliased("zone_id")
+    begin_time: typing.Optional[DateTime] = Aliased("hadal_begin_time")
+    end_time: typing.Optional[DateTime] = Aliased("hadal_end_time")
+    passed_fifth_floor: bool = Aliased("pass_fifth_floor")
+
+    brief_info: ShiyuV2BriefInfo = Aliased("brief")
+    fourth_frontier: ShiyuV2FourthFloor = Aliased("fourth_layer_detail")
+    fifth_frontier: ShiyuV2FifthFloor = Aliased("fitfh_layer_detail")  # Nice typo hoyo
+
+    player_nickname: str = Aliased("nick_name")
+    player_avatar: str = Aliased("icon")
 
 
 class DeadlyAssaultBoss(APIModel):
