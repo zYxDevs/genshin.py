@@ -2,7 +2,21 @@ line-length = 120
 target-version = "py39"
 
 [lint]
-select = ["A", "C4", "C9", "D", "E", "F", "S", "W", "T20", "PT", "RSE", "RUF022"]
+select = [
+    "A",
+    "C4",
+    "C9",
+    "D",
+    "E",
+    "F",
+    "S",
+    "W",
+    "T20",
+    "PT",
+    "RSE",
+    "RUF022",
+    "I001",
+]
 exclude = ["tests", "test.py"]
 
 # A001, A002, A003: `id` variable/parameter/attribute
