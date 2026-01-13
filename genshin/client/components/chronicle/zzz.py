@@ -1,6 +1,7 @@
 """StarRail battle chronicle component."""
 
 import asyncio
+import contextlib
 import functools
 import typing
 
@@ -258,8 +259,9 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             raise ValueError(msg)
 
         account_tz = self.get_account_timezone(game=types.Game.ZZZ, uid=uid)
-        data["hadal_begin_time"]["tzinfo"] = account_tz
-        data["hadal_end_time"]["tzinfo"] = account_tz
+        with contextlib.suppress(KeyError):
+            data["hadal_begin_time"]["tzinfo"] = account_tz
+            data["hadal_end_time"]["tzinfo"] = account_tz
 
         if raw:
             return data
