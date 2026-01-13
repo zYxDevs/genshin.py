@@ -15,7 +15,6 @@ select = [
     "PT",
     "RSE",
     "RUF022",
-    "I001",
 ]
 exclude = ["tests", "test.py"]
 
