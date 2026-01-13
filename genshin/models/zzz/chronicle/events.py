@@ -1,8 +1,9 @@
-from enum import Enum
 import typing
+from enum import Enum
 
 import pydantic
-from genshin.models.model import APIModel, Aliased, UnixDateTime, prevent_enum_error
+
+from genshin.models.model import Aliased, APIModel, UnixDateTime, prevent_enum_error
 from genshin.models.zzz.character import ZZZElementType, ZZZSpecialty
 
 __all__ = (

@@ -4,11 +4,10 @@ import asyncio
 import functools
 import typing
 
-from genshin import errors, types, utility
+from genshin import errors, paginators, types, utility
 from genshin.client import routes
 from genshin.models import zzz as models
 from genshin.models.genshin import gacha as gacha_models
-from genshin import paginators
 
 from . import base
 

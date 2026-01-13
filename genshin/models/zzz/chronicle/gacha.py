@@ -1,7 +1,8 @@
 import typing
 
 import pydantic
-from genshin.models.model import APIModel, Aliased
+
+from genshin.models.model import Aliased, APIModel
 from genshin.models.zzz.chronicle.events import ZZZGachaEventType
 
 __all__ = (

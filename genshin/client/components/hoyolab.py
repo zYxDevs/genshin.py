@@ -9,8 +9,7 @@ import warnings
 
 import yarl
 
-from genshin import types, utility
-from genshin import constants
+from genshin import constants, types, utility
 from genshin.client import cache as client_cache
 from genshin.client import routes
 from genshin.client.components import base
