@@ -216,8 +216,14 @@ class ShiyuV2BriefInfo(APIModel):
     max_score: int
     rank_percent: str
     total_clear_time: int = Aliased("battle_time")
-    rating: typing.Literal["S+", "S", "A", "B"]
-    challenge_time: DateTime
+    rating: typing.Optional[typing.Literal["S+", "S", "A", "B"]]
+    challenge_time: typing.Optional[DateTime] = None
+
+    @pydantic.field_validator("rating", mode="before")
+    def __parse_rating(
+        cls, value: typing.Literal["S+", "S", "A", "B", ""]
+    ) -> typing.Optional[typing.Literal["S+", "S", "A", "B"]]:
+        return value or None
 
     @pydantic.field_validator("rank_percent", mode="before")
     def __parse_rank_percent(cls, value: int) -> str:
@@ -233,8 +239,8 @@ class ShiyuDefenseV2(APIModel):
     passed_fifth_floor: bool = Aliased("pass_fifth_floor")
 
     brief_info: ShiyuV2BriefInfo = Aliased("brief")
-    fourth_frontier: ShiyuV2FourthFloor = Aliased("fourth_layer_detail")
-    fifth_frontier: ShiyuV2FifthFloor = Aliased("fitfh_layer_detail")  # Nice typo hoyo
+    fourth_frontier: typing.Optional[ShiyuV2FourthFloor] = Aliased("fourth_layer_detail", default=None)
+    fifth_frontier: typing.Optional[ShiyuV2FifthFloor] = Aliased("fitfh_layer_detail", default=None)  # Nice typo hoyo
 
     player_nickname: str = Aliased("nick_name")
     player_avatar: str = Aliased("icon")
