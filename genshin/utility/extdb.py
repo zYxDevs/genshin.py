@@ -42,8 +42,8 @@ GENSHINDATA_TALENT_DEPOT_URL = GENSHINDATA_REPO + "ExcelBinOutput/AvatarSkillDep
 GENSHINDATA_TALENT_URL = GENSHINDATA_REPO + "ExcelBinOutput/AvatarSkillExcelConfigData.json"
 GENSHINDATA_TEXTMAP_URL = GENSHINDATA_REPO + "TextMap/TextMap{lang}.json"
 
-ENKA_CHARACTERS_URL = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/characters.json"
-ENKA_LOC_URL = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/loc.json"
+ENKA_CHARACTERS_URL = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/refs/heads/master/store/gi/avatars.json"
+ENKA_LOC_URL = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/refs/heads/master/store/gi/locs.json"
 
 AMBR_URL = "https://gi.yatta.moe/api/v2/{lang}/avatar"
 AMBR_VERSION_URL = "https://gi.yatta.moe/api/v2/static/version"
@@ -56,7 +56,7 @@ ELEMENTS_MAP: typing.Final[dict[typing.Optional[str], str]] = {
     "Water": "Hydro",
     "Rock": "Geo",
     "Grass": "Dendro",
-    None: "None",
+    "None": "None",
 }
 RARITY_MAP = {
     "QUALITY_PURPLE": 4,
