@@ -103,10 +103,16 @@ class ZZZBannerType(enum.IntEnum):
     """Rotating character banner."""
 
     WEAPON = 3
-    """Rotating weapon banner."""
+    """Rotating w-engine banner."""
 
     BANGBOO = 5
     """Bangboo banner."""
+
+    EXCLUSIVE_RESCREENING = 102
+    """Exclusive rescreening banner."""
+
+    REVERBERATION = 103
+    """W-Engine reverberation banner."""
 
     def to_chronicle_type(self) -> str:
         """Get the chronicle type string for this banner type."""

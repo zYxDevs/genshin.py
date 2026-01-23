@@ -367,7 +367,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         lang: typing.Optional[str] = None,
         uid: typing.Optional[int] = None,
     ) -> typing.Sequence[gacha_models.SignalSearch]:
-        """Get a single page of chronicle signal searches."""
+        """Get a single page of battle chronicle signal searches."""
         uid = uid or await self._get_uid(types.Game.ZZZ)
         timezone = self.get_account_timezone(game=types.Game.ZZZ, uid=uid)
         if timezone is None:
