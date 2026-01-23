@@ -121,6 +121,8 @@ class ZZZBannerType(enum.IntEnum):
             ZZZBannerType.CHARACTER: "GACHA_TYPE_CHARACTER_UP",
             ZZZBannerType.WEAPON: "GACHA_TYPE_WEAPON_UP",
             ZZZBannerType.BANGBOO: "GACHA_TYPE_BANGBOO",
+            ZZZBannerType.EXCLUSIVE_RESCREENING: "GACHA_TYPE_CHARACTER_RETURN",
+            ZZZBannerType.REVERBERATION: "GACHA_TYPE_WEAPON_RETURN",
         }
         return mapping[self]
 

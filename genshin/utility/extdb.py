@@ -57,6 +57,7 @@ ELEMENTS_MAP: typing.Final[dict[typing.Optional[str], str]] = {
     "Rock": "Geo",
     "Grass": "Dendro",
     "None": "None",
+    None: "None",
 }
 RARITY_MAP = {
     "QUALITY_PURPLE": 4,

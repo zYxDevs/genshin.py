@@ -408,7 +408,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
                 paginators.CursorPaginator(
                     functools.partial(
                         self._get_chronicle_signal_page,
-                        banner_type=typing.cast(gacha_models.ZZZBannerType, banner),
+                        banner_type=gacha_models.ZZZBannerType(banner),
                         lang=lang,
                         uid=uid,
                     ),
