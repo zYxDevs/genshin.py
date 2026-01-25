@@ -238,7 +238,7 @@ class ShiyuDefenseV2(APIModel):
     end_time: typing.Optional[DateTime] = Aliased("hadal_end_time")
     passed_fifth_floor: bool = Aliased("pass_fifth_floor")
 
-    brief_info: ShiyuV2BriefInfo = Aliased("brief")
+    brief_info: typing.Optional[ShiyuV2BriefInfo] = Aliased("brief", default=None)
     fourth_frontier: typing.Optional[ShiyuV2FourthFloor] = Aliased("fourth_layer_detail", default=None)
     fifth_frontier: typing.Optional[ShiyuV2FifthFloor] = Aliased("fitfh_layer_detail", default=None)  # Nice typo hoyo
 
