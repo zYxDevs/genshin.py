@@ -259,7 +259,8 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             raise ValueError(msg)
 
         account_tz = self.get_account_timezone(game=types.Game.ZZZ, uid=uid)
-        with contextlib.suppress(KeyError):
+        with contextlib.suppress(KeyError, TypeError):
+            # key mights not exist or hadal_..._time is None
             data["hadal_begin_time"]["tzinfo"] = account_tz
             data["hadal_end_time"]["tzinfo"] = account_tz
 
