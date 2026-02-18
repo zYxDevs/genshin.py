@@ -1,7 +1,6 @@
 """StarRail battle chronicle component."""
 
 import asyncio
-import contextlib
 import functools
 import typing
 
@@ -258,11 +257,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             msg = f"Unknown Shiyu Defense version: {version!r}"
             raise ValueError(msg)
 
-        account_tz = self.get_account_timezone(game=types.Game.ZZZ, uid=uid)
-        with contextlib.suppress(KeyError, TypeError):
-            # key mights not exist or hadal_..._time is None
-            data["hadal_begin_time"]["tzinfo"] = account_tz
-            data["hadal_end_time"]["tzinfo"] = account_tz
+        self._add_timezone_to_data(data, ("hadal_begin_time", "hadal_end_time"), game=types.Game.ZZZ, uid=uid)
 
         if raw:
             return data
@@ -299,6 +294,9 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         """Get ZZZ Shiyu defense stats."""
         payload = {"schedule_type": 2 if previous else 1}
         data = await self._request_zzz_record("mem_detail", uid, lang=lang, payload=payload, use_uid_in_payload=True)
+
+        self._add_timezone_to_data(data, ("hadal_begin_time", "hadal_end_time"), game=types.Game.ZZZ, uid=uid)
+
         if raw:
             return data
         return models.DeadlyAssault(**data)
