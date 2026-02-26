@@ -9,7 +9,7 @@ import string
 import typing
 from http.cookies import SimpleCookie
 
-from genshin import constants, errors
+from genshin import errors
 from genshin.client import routes
 from genshin.client.components import base
 from genshin.models.auth.cookie import AppLoginResult
@@ -94,7 +94,6 @@ class AppAuthClient(base.BaseClient):
         """
         headers = {
             **auth_utility.APP_LOGIN_HEADERS,
-            "ds": ds_utility.generate_dynamic_secret(constants.DS_SALT["app_login"]),
             # Passing "x-rpc-device_id" header will trigger email verification
             # (unless the device_id is already verified).
             # For some reason, without this header, email verification is not triggered.
@@ -119,6 +118,8 @@ class AppAuthClient(base.BaseClient):
             "account": account if encrypted else auth_utility.encrypt_credentials(account, 1),
             "password": password if encrypted else auth_utility.encrypt_credentials(password, 1),
         }
+
+        headers["ds"] = ds_utility.generate_app_login_ds(payload)
 
         async with self.cookie_manager.create_session() as session:
             async with session.post(
