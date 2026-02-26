@@ -12,6 +12,10 @@ __all__ = ["encrypt_credentials", "generate_sign"]
 
 
 # RSA key used for OS app/web login
+# 2026-02-27 Use https://www.decompiler.com to decompile the hoyolab apk.
+# At the time of writing, the key is found in getRSA_PUBLIC_KEY,
+# which has RSA keys for three different environments.
+# Use the production key.
 LOGIN_KEY_TYPE_1 = b"""
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4PMS2JVMwBsOIrYWRluY
