@@ -309,11 +309,13 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         return models.LostVoidSummary(**data)
 
     async def get_threshold_simulation_brief(
-        self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
+        self, uid: typing.Optional[int] = None, *, previous: bool = False, lang: typing.Optional[str] = None
     ) -> models.ThresholdSimulationInfo:
         """Get ZZZ Threshold Simulation brief info."""
+        schedule_type = 2 if previous else 1
+        payload = {"schedule_type": schedule_type}
         data = await self._request_zzz_record(
-            "void_front_battle_abstract_info", uid, lang=lang, use_uid_in_payload=True
+            "void_front_battle_period_abstract_info", uid, lang=lang, use_uid_in_payload=True, payload=payload
         )
         return models.ThresholdSimulationInfo(**data["void_front_battle_abstract_info_brief"])
 
@@ -323,6 +325,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         id: typing.Optional[int] = ...,
         uid: typing.Optional[int] = ...,
         *,
+        previous: bool = ...,
         lang: typing.Optional[str] = ...,
         raw: typing.Literal[False] = ...,
     ) -> models.ThresholdSimulation: ...
@@ -332,6 +335,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         id: typing.Optional[int] = ...,
         uid: typing.Optional[int] = ...,
         *,
+        previous: bool = ...,
         lang: typing.Optional[str] = ...,
         raw: typing.Literal[True] = ...,
     ) -> typing.Mapping[str, typing.Any]: ...
@@ -340,6 +344,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         id: typing.Optional[int] = None,
         uid: typing.Optional[int] = None,
         *,
+        previous: bool = False,
         lang: typing.Optional[str] = None,
         raw: bool = False,
     ) -> typing.Union[models.ThresholdSimulation, typing.Mapping[str, typing.Any]]:
@@ -347,13 +352,19 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
 
         If no ID is given, the latest run will be fetched.
         """
+        schedule_type = 2 if previous else 1
         if id is None:
-            brief = await self.get_threshold_simulation_brief(uid, lang=lang)
+            brief = await self.get_threshold_simulation_brief(uid, lang=lang, previous=previous)
             id = brief.id
 
         data = await self._request_zzz_record(
-            "void_front_battle_detail", uid, lang=lang, payload={"void_front_id": id}, use_uid_in_payload=True
+            "void_front_battle_period_detail",
+            uid,
+            lang=lang,
+            payload={"void_front_id": id, "schedule_type": schedule_type},
+            use_uid_in_payload=True,
         )
+        data = data["void_front_battle_detail"]
         if raw:
             return data
         return models.ThresholdSimulation(**data)
