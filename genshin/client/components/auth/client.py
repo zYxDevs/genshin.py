@@ -204,12 +204,12 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
     ) -> AppLoginResult:
         """Login with a password via HoYoLab app endpoint.
 
-        Note that this will start a webserver if either of the
-        following happens:
+        Note that this will start a webserver if captcha is
+        triggered and ``geetest_solver`` is not passed.
 
-        1. Captcha is triggered and `geetest_solver` is not passed.
-        2. Email verification is triggered (can happen if you
-        first login with a new device).
+        If email verification is triggered (can happen on first
+        login with a new device), the verification code will be
+        requested via CLI input.
 
         Raises
         ------
@@ -274,7 +274,7 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
                 else:
                     mmt_result = await server.solve_geetest(mmt, port=port)
 
-            code = await server.enter_code(port=port)
+            code = await asyncio.to_thread(input, "Enter the email verification code: ")
             await self._verify_email(code, result)
 
             result = await self._app_login(
