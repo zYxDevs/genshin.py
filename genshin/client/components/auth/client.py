@@ -186,7 +186,7 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
             mmt_result = await server.solve_geetest(result, port=port)
             await self._send_mobile_otp(mobile, encrypted=encrypted, mmt_result=mmt_result)
 
-        otp = await server.enter_code(port=port)
+        otp = await server.enter_code()
         return await self._login_with_mobile_otp(mobile, otp, encrypted=encrypted)
 
     @base.region_specific(types.Region.OVERSEAS)
@@ -274,7 +274,7 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
                 else:
                     mmt_result = await server.solve_geetest(mmt, port=port)
 
-            code = await asyncio.to_thread(input, "Enter the email verification code: ")
+            code = await server.enter_code()
             await self._verify_email(code, result)
 
             result = await self._app_login(

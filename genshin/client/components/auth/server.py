@@ -1,4 +1,4 @@
-"""Aiohttp webserver used for captcha solving and verification."""
+"""Aiohttp webserver used for captcha solving."""
 
 from __future__ import annotations
 
@@ -24,10 +24,9 @@ from genshin.models.auth.geetest import (
 )
 from genshin.utility import auth as auth_utility
 
-__all__ = ["HOYOLAB_GT_SERVER", "PAGES", "enter_code", "launch_webapp", "solve_geetest"]
+__all__ = ["CAPTCHA_PAGE", "HOYOLAB_GT_SERVER", "enter_code", "launch_webapp", "solve_geetest"]
 
-PAGES: typing.Final[dict[typing.Literal["captcha", "enter-code"], str]] = {
-    "captcha": """
+CAPTCHA_PAGE: typing.Final[str] = """
     <!DOCTYPE html>
     <head>
       <meta name="referrer" content="no-referrer"/>
@@ -85,28 +84,7 @@ PAGES: typing.Final[dict[typing.Literal["captcha", "enter-code"], str]] = {
           });
       </script>
     </html>
-    """,
-    "enter-code": """
-    <!DOCTYPE html>
-    <html>
-      <body>
-        <input id="code" type="number">
-        <button id="verify">Send</button>
-      </body>
-      <script>
-        document.getElementById("verify").onclick = () => {
-          fetch("/send-data", {
-            method: "POST",
-            body: JSON.stringify({
-              code: document.getElementById("code").value
-            }),
-          }).then(() => window.close());
-          document.body.innerHTML = "You may now close this window.";
-        };
-      </script>
-    </html>
-    """,
-}
+    """
 
 
 GT_V3_URL = "https://static.geetest.com/static/js/gt.0.5.0.js"
@@ -116,40 +94,64 @@ HOYOLAB_GT_SERVER = "gcaptcha4.captchami.com"
 
 @typing.overload
 async def launch_webapp(
-    page: typing.Literal["captcha"],
+    mmt: RiskyCheckMMT,
     *,
-    mmt: typing.Union[MMT, MMTv4, SessionMMT, SessionMMTv4, RiskyCheckMMT],
     lang: str = ...,
     api_server: str = ...,
     for_new_os_app: bool = ...,
     port: int = ...,
-) -> typing.Union[MMTResult, MMTv4Result, SessionMMTResult, SessionMMTv4Result, RiskyCheckMMTResult]: ...
+) -> RiskyCheckMMTResult: ...
 @typing.overload
 async def launch_webapp(
-    page: typing.Literal["enter-code"],
+    mmt: SessionMMT,
     *,
-    mmt: None = ...,
-    lang: None = ...,
-    api_server: None = ...,
-    for_new_os_app: None = ...,
+    lang: str = ...,
+    api_server: str = ...,
+    for_new_os_app: bool = ...,
     port: int = ...,
-) -> str: ...
+) -> SessionMMTResult: ...
+@typing.overload
 async def launch_webapp(
-    page: typing.Literal["captcha", "enter-code"],
+    mmt: SessionMMTv4,
     *,
-    mmt: typing.Optional[typing.Union[MMT, MMTv4, SessionMMT, SessionMMTv4, RiskyCheckMMT]] = None,
+    lang: str = ...,
+    api_server: str = ...,
+    for_new_os_app: bool = ...,
+    port: int = ...,
+) -> SessionMMTv4Result: ...
+@typing.overload
+async def launch_webapp(
+    mmt: MMT,
+    *,
+    lang: str = ...,
+    api_server: str = ...,
+    for_new_os_app: bool = ...,
+    port: int = ...,
+) -> MMTResult: ...
+@typing.overload
+async def launch_webapp(
+    mmt: MMTv4,
+    *,
+    lang: str = ...,
+    api_server: str = ...,
+    for_new_os_app: bool = ...,
+    port: int = ...,
+) -> MMTv4Result: ...
+async def launch_webapp(
+    mmt: typing.Union[MMT, MMTv4, SessionMMT, SessionMMTv4, RiskyCheckMMT],
+    *,
     lang: typing.Optional[str] = None,
     api_server: typing.Optional[str] = None,
     for_new_os_app: typing.Optional[bool] = None,
     port: int = 5000,
-) -> typing.Union[MMTResult, MMTv4Result, SessionMMTResult, SessionMMTv4Result, RiskyCheckMMTResult, str]:
-    """Create and run a webapp to solve captcha or enter a verification code."""
+) -> typing.Union[MMTResult, MMTv4Result, SessionMMTResult, SessionMMTv4Result, RiskyCheckMMTResult]:
+    """Create and run a webapp to solve a geetest captcha."""
     routes = web.RouteTableDef()
     future: asyncio.Future[typing.Any] = asyncio.Future()
 
     @routes.get("/")
     async def index(request: web.Request) -> web.StreamResponse:
-        body = PAGES[page]
+        body = CAPTCHA_PAGE
         body = body.replace("{gt_version}", "4" if isinstance(mmt, MMTv4) else "3")
         body = body.replace("{api_server}", api_server or "api-na.geetest.com")
         body = body.replace("{lang}", lang or "en")
@@ -169,24 +171,22 @@ async def launch_webapp(
 
     @routes.get("/mmt")
     async def mmt_endpoint(request: web.Request) -> web.Response:
-        return web.json_response(mmt.model_dump() if mmt else {})
+        return web.json_response(mmt.model_dump())
 
     @routes.post("/send-data")
     async def send_data_endpoint(request: web.Request) -> web.Response:
-        result = await request.json()
-        if "code" in result:
-            result = result["code"]
+        data = await request.json()
+        result: typing.Union[MMTResult, MMTv4Result, SessionMMTResult, SessionMMTv4Result, RiskyCheckMMTResult]
+        if isinstance(mmt, RiskyCheckMMT):
+            result = RiskyCheckMMTResult(**data)
+        elif isinstance(mmt, SessionMMT):
+            result = SessionMMTResult(**data)
+        elif isinstance(mmt, SessionMMTv4):
+            result = SessionMMTv4Result(**data)
+        elif isinstance(mmt, MMT):
+            result = MMTResult(**data)
         else:
-            if isinstance(mmt, RiskyCheckMMT):
-                result = RiskyCheckMMTResult(**result)
-            elif isinstance(mmt, SessionMMT):
-                result = SessionMMTResult(**result)
-            elif isinstance(mmt, SessionMMTv4):
-                result = SessionMMTv4Result(**result)
-            elif isinstance(mmt, MMT):
-                result = MMTResult(**result)
-            elif isinstance(mmt, MMTv4):
-                result = MMTv4Result(**result)
+            result = MMTv4Result(**data)
 
         future.set_result(result)
         return web.Response(status=204)
@@ -269,8 +269,7 @@ async def solve_geetest(
     """Start a web server and manually solve geetest captcha."""
     geetest_lang = auth_utility.lang_to_geetest_lang(lang)
     return await launch_webapp(
-        "captcha",
-        mmt=mmt,
+        mmt,
         lang=geetest_lang,
         api_server=api_server,
         for_new_os_app=for_new_os_app,
@@ -278,6 +277,6 @@ async def solve_geetest(
     )
 
 
-async def enter_code(*, port: int = 5000) -> str:
-    """Get email or phone number verification code from user."""
-    return await launch_webapp("enter-code", port=port)
+async def enter_code(*, prompt: str = "Enter the verification code: ") -> str:
+    """Get email or phone number verification code from the user via CLI input."""
+    return await asyncio.to_thread(input, prompt)
