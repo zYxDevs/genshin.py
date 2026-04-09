@@ -139,6 +139,7 @@ class BaseCookieManager(abc.ABC):
         return aiohttp.ClientSession(
             cookie_jar=aiohttp.DummyCookieJar(),
             connector=connector,
+            proxy=self.proxy,
             **kwargs,
         )
 
