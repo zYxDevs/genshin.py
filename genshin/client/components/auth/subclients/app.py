@@ -136,17 +136,16 @@ class AppAuthClient(base.BaseClient):
 
         headers["ds"] = ds_utility.generate_app_login_ds(payload)
 
-        async with self.cookie_manager.create_session() as session:
-            async with session.post(
-                routes.APP_LOGIN_URL.get_url(),
-                json=payload,
-                headers=headers,
-            ) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "POST",
+            routes.APP_LOGIN_URL.get_url(),
+            json=payload,
+            headers=headers,
+        )
 
-        if data["retcode"] == -3101:
+        if resp.data["retcode"] == -3101:
             # Captcha triggered
-            aigis = json.loads(r.headers["x-rpc-aigis"])
+            aigis = json.loads(resp.headers["x-rpc-aigis"])
 
             if isinstance(aigis["data"], str):
                 aigis["data"] = json.loads(aigis["data"])
@@ -159,20 +158,20 @@ class AppAuthClient(base.BaseClient):
 
             return SessionMMT(**aigis)
 
-        if data["retcode"] == -3239:
+        if resp.data["retcode"] == -3239:
             # Email verification required
-            action_ticket = json.loads(r.headers["x-rpc-verify"])
+            action_ticket = json.loads(resp.headers["x-rpc-verify"])
             return ActionTicket(**action_ticket)
 
-        if not data["data"]:
-            errors.raise_for_retcode(data)
+        if not resp.data["data"]:
+            errors.raise_for_retcode(resp.data)
 
         cookies = {
-            "stoken": data["data"]["token"]["token"],
-            "ltuid_v2": data["data"]["user_info"]["aid"],
-            "ltmid_v2": data["data"]["user_info"]["mid"],
-            "account_id_v2": data["data"]["user_info"]["aid"],
-            "account_mid_v2": data["data"]["user_info"]["mid"],
+            "stoken": resp.data["data"]["token"]["token"],
+            "ltuid_v2": resp.data["data"]["user_info"]["aid"],
+            "ltmid_v2": resp.data["data"]["user_info"]["mid"],
+            "account_id_v2": resp.data["data"]["user_info"]["aid"],
+            "account_mid_v2": resp.data["data"]["user_info"]["mid"],
         }
         self.set_cookies(cookies)
 
@@ -192,77 +191,73 @@ class AppAuthClient(base.BaseClient):
         if mmt_result:
             headers["x-rpc-aigis"] = mmt_result.to_aigis_header()
 
-        async with self.cookie_manager.create_session() as session:
-            async with session.post(
-                routes.SEND_VERIFICATION_CODE_URL.get_url(),
-                json={
-                    "action_type": "verify_for_component",
-                    "action_ticket": ticket.verify_str.ticket,
-                },
-                headers=headers,
-            ) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "POST",
+            routes.SEND_VERIFICATION_CODE_URL.get_url(),
+            json={
+                "action_type": "verify_for_component",
+                "action_ticket": ticket.verify_str.ticket,
+            },
+            headers=headers,
+        )
 
-        if data["retcode"] == -3101:
+        if resp.data["retcode"] == -3101:
             # Captcha triggered
-            aigis = json.loads(r.headers["x-rpc-aigis"])
+            aigis = json.loads(resp.headers["x-rpc-aigis"])
             return SessionMMT(**aigis)
 
-        if data["retcode"] != 0:
-            errors.raise_for_retcode(data)
+        if resp.data["retcode"] != 0:
+            errors.raise_for_retcode(resp.data)
 
         return None
 
     async def _verify_email(self, code: str, ticket: ActionTicket) -> None:
         """Verify email."""
-        async with self.cookie_manager.create_session() as session:
-            async with session.post(
-                routes.VERIFY_EMAIL_URL.get_url(),
-                json={
-                    "action_type": "verify_for_component",
-                    "action_ticket": ticket.verify_str.ticket,
-                    "email_captcha": code,
-                    "verify_method": 2,
-                },
-                headers=auth_utility.EMAIL_VERIFY_HEADERS,
-            ) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "POST",
+            routes.VERIFY_EMAIL_URL.get_url(),
+            json={
+                "action_type": "verify_for_component",
+                "action_ticket": ticket.verify_str.ticket,
+                "email_captcha": code,
+                "verify_method": 2,
+            },
+            headers=auth_utility.EMAIL_VERIFY_HEADERS,
+        )
 
-        if data["retcode"] != 0:
-            errors.raise_for_retcode(data)
+        if resp.data["retcode"] != 0:
+            errors.raise_for_retcode(resp.data)
 
         return None
 
     async def _create_qrcode(self) -> QRCodeCreationResult:
         """Create a QR code for login."""
-        async with self.cookie_manager.create_session() as session:
-            async with session.post(
-                routes.CREATE_QRCODE_URL.get_url(),
-                headers=auth_utility.QRCODE_HEADERS,
-            ) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "POST",
+            routes.CREATE_QRCODE_URL.get_url(),
+            headers=auth_utility.QRCODE_HEADERS,
+        )
 
-        if not data["data"]:
-            errors.raise_for_retcode(data)
+        if not resp.data["data"]:
+            errors.raise_for_retcode(resp.data)
 
         return QRCodeCreationResult(
-            ticket=data["data"]["ticket"],
-            url=data["data"]["url"],
+            ticket=resp.data["data"]["ticket"],
+            url=resp.data["data"]["url"],
         )
 
     async def _check_qrcode(self, ticket: str) -> tuple[QRCodeStatus, SimpleCookie]:
         """Check the status of a QR code login."""
         payload = {"ticket": ticket}
 
-        async with self.cookie_manager.create_session() as session:
-            async with session.post(
-                routes.CHECK_QRCODE_URL.get_url(),
-                json=payload,
-                headers=auth_utility.QRCODE_HEADERS,
-            ) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "POST",
+            routes.CHECK_QRCODE_URL.get_url(),
+            json=payload,
+            headers=auth_utility.QRCODE_HEADERS,
+        )
 
-                if not data["data"]:
-                    errors.raise_for_retcode(data)
+        if not resp.data["data"]:
+            errors.raise_for_retcode(resp.data)
 
-                return QRCodeStatus(data["data"]["status"]), r.cookies
+        return QRCodeStatus(resp.data["data"]["status"]), resp.cookies

@@ -150,14 +150,13 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
 
         Returns True if the mobile number is valid, False otherwise.
         """
-        async with self.cookie_manager.create_session() as session:
-            async with session.get(
-                routes.CHECK_MOBILE_VALIDITY_URL.get_url(),
-                params={"mobile": mobile},
-            ) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "GET",
+            routes.CHECK_MOBILE_VALIDITY_URL.get_url(),
+            params={"mobile": mobile},
+        )
 
-        return data["data"]["status"] != data["data"]["is_registable"]
+        return resp.data["data"]["status"] != resp.data["data"]["is_registable"]
 
     @base.region_specific(types.Region.CHINESE)
     async def login_with_mobile_number(
@@ -332,14 +331,17 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
             url = url.update_query(app_key=constants.GEETEST_RECORD_KEYS[self.default_game])
 
         assert isinstance(self.cookie_manager, managers.CookieManager)
-        async with self.cookie_manager.create_session() as session:
-            async with session.get(url, headers=headers, cookies=self.cookie_manager.cookies) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "GET",
+            url,
+            headers=headers,
+            cookies=self.cookie_manager.cookies,
+        )
 
-        if not data["data"]:
-            errors.raise_for_retcode(data)
+        if not resp.data["data"]:
+            errors.raise_for_retcode(resp.data)
 
-        return MMT(**data["data"])
+        return MMT(**resp.data["data"])
 
     @base.region_specific(types.Region.OVERSEAS)
     @managers.no_multi
@@ -357,14 +359,16 @@ class AuthClient(subclients.AppAuthClient, subclients.WebAuthClient, subclients.
         body["app_key"] = constants.GEETEST_RECORD_KEYS[self.default_game]
 
         assert isinstance(self.cookie_manager, managers.CookieManager)
-        async with self.cookie_manager.create_session() as session:
-            async with session.post(
-                routes.VERIFY_MMT_URL.get_url(), json=body, headers=headers, cookies=self.cookie_manager.cookies
-            ) as r:
-                data = await r.json()
+        resp = await self.cookie_manager._raw_request(
+            "POST",
+            routes.VERIFY_MMT_URL.get_url(),
+            json=body,
+            headers=headers,
+            cookies=self.cookie_manager.cookies,
+        )
 
-        if not data["data"]:
-            errors.raise_for_retcode(data)
+        if not resp.data["data"]:
+            errors.raise_for_retcode(resp.data)
 
     async def os_game_login(
         self,
