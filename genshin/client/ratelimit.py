@@ -8,7 +8,6 @@ import aiohttp
 from tenacity import (
     before_sleep_log,
     retry,
-    retry_if_exception,
     retry_if_exception_type,
     stop_after_attempt,
     wait_random_exponential,
@@ -41,26 +40,13 @@ def handle_request_timeouts(
     delay: float = 0.5,
 ) -> typing.Callable[[CallableT], CallableT]:
     """Handle timeout errors for requests."""
-    try:
-        from aiohttp_socks import ProxyError
-    except ImportError:
-        return retry(
-            stop=stop_after_attempt(tries),
-            wait=wait_random_exponential(multiplier=delay, min=delay),
-            retry=retry_if_exception_type(TIMEOUT_ERRORS),
-            reraise=True,
-            before_sleep=before_sleep_log(LOGGER_, logging.DEBUG),
-        )
-    else:
-        # Exclude ProxyError (subclass of aiohttp.ClientError) so it is handled
-        # separately by handle_proxy_errors instead of being retried with the proxy.
-        return retry(
-            stop=stop_after_attempt(tries),
-            wait=wait_random_exponential(multiplier=delay, min=delay),
-            retry=retry_if_exception(lambda e: isinstance(e, TIMEOUT_ERRORS) and not isinstance(e, ProxyError)),
-            reraise=True,
-            before_sleep=before_sleep_log(LOGGER_, logging.DEBUG),
-        )
+    return retry(
+        stop=stop_after_attempt(tries),
+        wait=wait_random_exponential(multiplier=delay, min=delay),
+        retry=retry_if_exception_type(TIMEOUT_ERRORS),
+        reraise=True,
+        before_sleep=before_sleep_log(LOGGER_, logging.DEBUG),
+    )
 
 
 def handle_proxy_errors(func: CallableT) -> CallableT:
