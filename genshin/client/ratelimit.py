@@ -53,14 +53,16 @@ def handle_proxy_errors(func: CallableT) -> CallableT:
     """If a proxy error occurs, retry the request once without the proxy."""
     try:
         from aiohttp_socks import ProxyError
+
+        proxy_errors: typing.Tuple[typing.Type[Exception], ...] = (ProxyError, aiohttp.ClientHttpProxyError)
     except ImportError:
-        return func
+        proxy_errors = (aiohttp.ClientHttpProxyError,)
 
     @functools.wraps(func)  # type: ignore[arg-type]
     async def wrapper(self: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         try:
             return await func(self, *args, **kwargs)
-        except ProxyError:
+        except proxy_errors:
             LOGGER_.warning("Proxy error encountered, retrying without proxy.")
             original_proxy = self._proxy
             original_socks_proxy = self._socks_proxy
