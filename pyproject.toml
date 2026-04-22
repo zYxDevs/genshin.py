@@ -44,7 +44,18 @@ redis = ["aioredis>=2.0.1"]
 sqlite = ["aiosqlite>=0.17.0"]
 
 [dependency-groups]
-dev = ["nox>=2024.4.15"]
+dev = [
+    "nox>=2024.4.15",
+    "pytest>=8.3.3",
+    "ruff>=0.6.8",
+    "aiohttp-socks>=0.9.0",
+    "aioredis>=2.0.1",
+    "aiosqlite>=0.17.0",
+    "browser-cookie3>=0.19.1",
+    "click>=8.1.7",
+    "qrcode[pil]>=7.4.2",
+    "rsa>=4.9",
+]
 lint = ["ruff>=0.6.8"]
 pytest = [
     "coverage[toml]>=7.6.1",

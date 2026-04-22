@@ -1073,7 +1073,18 @@ sqlite = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "aiohttp-socks" },
+    { name = "aioredis" },
+    { name = "aiosqlite" },
+    { name = "browser-cookie3" },
+    { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "click", version = "8.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "nox" },
+    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "pytest", version = "9.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "qrcode", extra = ["pil"] },
+    { name = "rsa" },
+    { name = "ruff" },
 ]
 docs = [
     { name = "griffe-pydantic", version = "1.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -1132,7 +1143,18 @@ requires-dist = [
 provides-extras = ["all", "cookies", "auth", "cli", "socks-proxy", "redis", "sqlite"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "nox", specifier = ">=2024.4.15" }]
+dev = [
+    { name = "aiohttp-socks", specifier = ">=0.9.0" },
+    { name = "aioredis", specifier = ">=2.0.1" },
+    { name = "aiosqlite", specifier = ">=0.17.0" },
+    { name = "browser-cookie3", specifier = ">=0.19.1" },
+    { name = "click", specifier = ">=8.1.7" },
+    { name = "nox", specifier = ">=2024.4.15" },
+    { name = "pytest", specifier = ">=8.3.3" },
+    { name = "qrcode", extras = ["pil"], specifier = ">=7.4.2" },
+    { name = "rsa", specifier = ">=4.9" },
+    { name = "ruff", specifier = ">=0.6.8" },
+]
 docs = [
     { name = "griffe-pydantic", specifier = ">=1.1.7" },
     { name = "mkdocs-material", specifier = ">=9.5.38" },
