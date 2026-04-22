@@ -47,11 +47,13 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/test'))
+    if: github.event_name == 'push' || (github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request && contains(github.event.comment.body,
+      '/test'))
 
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: [ "3.9", "3.10", "3.11" ]
 
     steps:
       - uses: actions/checkout@v6
@@ -70,9 +72,21 @@ jobs:
         env:
           GENSHIN_COOKIES: ${{ secrets.GENSHIN_COOKIES }}
           HONKAI_COOKIES: ${{ secrets.HONKAI_COOKIES }}
-          LOCAL_GENSHIN_COOKIES: ${{ matrix.python-version == '3.10' && secrets.LOCAL_GENSHIN_COOKIES || '' }}
+          LOCAL_GENSHIN_COOKIES: ${{ matrix.python-version == '3.10' &&
+            secrets.LOCAL_GENSHIN_COOKIES || '' }}
           HSR_COOKIES: ${{ secrets.HSR_COOKIES }}
           ZZZ_COOKIES: ${{ secrets.ZZZ_COOKIES }}
+
+          GENSHIN_UID: ${{ vars.GENSHIN_UID }}
+          HONKAI_UID: ${{ vars.HONKAI_UID }}
+          HSR_UID: ${{ vars.HSR_UID }}
+          ZZZ_UID: ${{ vars.ZZZ_UID }}
+
+          HOYOLAB_ID: ${{ vars.HOYOLAB_ID }}
+          GENSHIN_CNUID: ${{ vars.GENSHIN_CNUID }}
+          MIYOUSHE_UID: ${{ vars.MIYOUSHE_UID }}
+          HOYOLAB_TOPIC_ID: ${{ vars.HOYOLAB_TOPIC_ID }}
+          HOYOLAB_POST_ID: ${{ vars.HOYOLAB_POST_ID }}
 
         run: |
           uv run nox -s test --verbose -- --cov-append
@@ -88,7 +102,7 @@ jobs:
           include-hidden-files: true
 
   upload-coverage:
-    needs: [test]
+    needs: [ test ]
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
