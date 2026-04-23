@@ -298,7 +298,9 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         raw: bool = False,
     ) -> typing.Union[models.AnomalyArbitration, typing.Mapping[str, typing.Any]]:
         """Get starrail anomaly arbitration runs."""
-        payload = dict(schedule_type=2 if previous else 1)
+        # 2026-04-24: API changed to use schedule_type=3 and returns three most recent runs,
+        # previous parameter is kept for backward compatibility but has no effect.
+        payload = dict(schedule_type=3)
         data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
         if raw:
             return data
