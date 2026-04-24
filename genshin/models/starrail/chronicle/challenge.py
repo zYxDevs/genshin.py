@@ -318,5 +318,5 @@ class AnomalyArbitration(APIModel):
     """HSR Anomaly Arbitration info."""
 
     records: list[AnomalyRecord] = Aliased("challenge_peak_records")
-    summary: AnomalySummary = Aliased("challenge_peak_best_record_brief")
+    summary: typing.Optional[AnomalySummary] = Aliased("challenge_peak_best_record_brief", default=None)
     player: AnomalyPlayer = Aliased("role")
