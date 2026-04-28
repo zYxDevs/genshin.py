@@ -16,7 +16,7 @@ from tenacity import (
 from genshin import errors
 
 LOGGER_ = logging.getLogger(__name__)
-TIMEOUT_ERRORS = (TimeoutError, aiohttp.ClientError, ConnectionResetError)
+TIMEOUT_ERRORS = (TimeoutError, aiohttp.ClientConnectionError, ConnectionResetError)
 CallableT = typing.TypeVar("CallableT", bound=typing.Callable[..., typing.Awaitable[typing.Any]])
 
 
