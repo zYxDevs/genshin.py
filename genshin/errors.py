@@ -262,6 +262,13 @@ class NoNeedGeetest(GenshinException):
     """No need to do geetest."""
 
 
+class UserNotesAccessDenied(GenshinException):
+    """Cannot view real-time notes of other users."""
+
+    retcode = 10104
+    msg = "Cannot view real-time notes of other users."
+
+
 _TGE = type[GenshinException]
 _errors: dict[int, typing.Union[_TGE, str, tuple[_TGE, typing.Optional[str]]]] = {
     # misc hoyolab
@@ -278,7 +285,7 @@ _errors: dict[int, typing.Union[_TGE, str, tuple[_TGE, typing.Optional[str]]]] =
     10101: TooManyRequests,
     10102: DataNotPublic,
     10103: (InvalidCookies, "Cookies are valid but do not have a hoyolab account bound to them."),
-    10104: "Cannot view real-time notes of other users.",
+    10104: UserNotesAccessDenied,
     # calculator
     -500001: "Invalid fields in calculation.",
     -500004: VisitsTooFrequently,
