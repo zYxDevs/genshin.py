@@ -279,6 +279,7 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         previous: bool = ...,
         lang: typing.Optional[str] = ...,
         raw: typing.Literal[False] = ...,
+        schedule_type: typing.Literal[1, 3] = ...,
     ) -> models.AnomalyArbitration: ...
     @typing.overload
     async def get_anomaly_arbitration(
@@ -288,6 +289,7 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         previous: bool = ...,
         lang: typing.Optional[str] = ...,
         raw: typing.Literal[True] = ...,
+        schedule_type: typing.Literal[1, 3] = ...,
     ) -> typing.Mapping[str, typing.Any]: ...
     async def get_anomaly_arbitration(
         self,
@@ -296,17 +298,17 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         previous: bool = False,
         lang: typing.Optional[str] = None,
         raw: bool = False,
+        schedule_type: typing.Literal[1, 3] = 3,
     ) -> typing.Union[models.AnomalyArbitration, typing.Mapping[str, typing.Any]]:
-        """Get starrail anomaly arbitration runs."""
+        """Get starrail anomaly arbitration runs.
+
+        schedule_type=1 returns the current run,
+        schedule_type=3 returns three most recent runs.
+        """
         # 2026-04-24: API changed to use schedule_type=3 and returns three most recent runs,
         # previous parameter is kept for backward compatibility but has no effect.
-        payload = dict(schedule_type=3)
-        try:
-            data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
-        except errors.UserNotesAccessDenied:
-            payload = dict(schedule_type=1)
-            data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
-
+        payload = dict(schedule_type=schedule_type)
+        data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
         if raw:
             return data
         return models.AnomalyArbitration(**data)
