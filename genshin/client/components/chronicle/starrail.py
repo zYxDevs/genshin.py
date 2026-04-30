@@ -301,7 +301,12 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         # 2026-04-24: API changed to use schedule_type=3 and returns three most recent runs,
         # previous parameter is kept for backward compatibility but has no effect.
         payload = dict(schedule_type=3)
-        data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
+        try:
+            data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
+        except errors.UserNotesAccessDenied:
+            payload = dict(schedule_type=1)
+            data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
+
         if raw:
             return data
         return models.AnomalyArbitration(**data)
