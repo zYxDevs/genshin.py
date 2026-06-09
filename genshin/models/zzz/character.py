@@ -35,6 +35,7 @@ class ZZZElementType(enum.IntEnum):
     FIRE = 201
     ICE = 202
     ELECTRIC = 203
+    WIND = 204
     ETHER = 205
 
 
