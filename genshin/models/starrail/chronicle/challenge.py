@@ -186,7 +186,7 @@ class APCShadowFloor(StarRailChallengeFloor):
     node_3: typing.Optional[APCShadowFloorNode] = Aliased(default=None)
     last_update_time: PartialTime
     is_quick_clear: bool = Aliased("is_fast")
-    has_starward_mode: bool = Aliased("is_tierce")
+    has_starward_mode: bool = Aliased("is_tierce", default=False)
 
     @property
     def score(self) -> int:
@@ -214,7 +214,7 @@ class StarRailAPCShadow(APIModel):
     """Apocalyptic shadow challenge in a season."""
 
     total_stars: int = Aliased("star_num")
-    starward_star: int = Aliased("extra_star_num")
+    starward_star: int = Aliased("extra_star_num", default=0)
     max_floor: str
     total_battles: int = Aliased("battle_num")
     has_data: bool
