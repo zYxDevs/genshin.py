@@ -181,8 +181,8 @@ class APCShadowFloorNode(FloorNode):
 class APCShadowFloor(StarRailChallengeFloor):
     """Floor in an apocalyptic shadow challenge."""
 
-    node_1: APCShadowFloorNode
-    node_2: APCShadowFloorNode
+    node_1: typing.Optional[APCShadowFloorNode] = Aliased(default=None)
+    node_2: typing.Optional[APCShadowFloorNode] = Aliased(default=None)
     node_3: typing.Optional[APCShadowFloorNode] = Aliased(default=None)
     last_update_time: PartialTime
     is_quick_clear: bool = Aliased("is_fast")
@@ -191,7 +191,10 @@ class APCShadowFloor(StarRailChallengeFloor):
     @property
     def score(self) -> int:
         """Total score of the floor."""
-        return self.node_1.score + self.node_2.score + (self.node_3.score if self.node_3 is not None else 0)
+        node_1_score = self.node_1.score if self.node_1 is not None else 0
+        node_2_score = self.node_2.score if self.node_2 is not None else 0
+        node_3_score = self.node_3.score if self.node_3 is not None else 0
+        return node_1_score + node_2_score + node_3_score
 
 
 class APCShadowBoss(APIModel):
