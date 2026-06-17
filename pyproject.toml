@@ -96,7 +96,7 @@ testpaths = ["tests"]
 
 [tool.pyright]
 include = ["genshin"]
-exclude = ["**/__init__.py", "tests/**"]
+exclude = ["**/__init__.py", "tests/**", "**/__pycache__", "**/.*", "**/node_modules", ".venv"]
 
 typeCheckingMode = "strict"
 reportMissingTypeStubs = "none"
