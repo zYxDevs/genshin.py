@@ -301,6 +301,44 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             return data
         return models.DeadlyAssault(**data)
 
+    @typing.overload
+    async def get_annihilation_simulacrum(
+        self,
+        uid: typing.Optional[int] = ...,
+        *,
+        previous: bool = ...,
+        lang: typing.Optional[str] = ...,
+        raw: typing.Literal[False] = ...,
+    ) -> models.AnnihilationSimulacrum: ...
+    @typing.overload
+    async def get_annihilation_simulacrum(
+        self,
+        uid: typing.Optional[int] = ...,
+        *,
+        previous: bool = ...,
+        lang: typing.Optional[str] = ...,
+        raw: typing.Literal[True] = ...,
+    ) -> typing.Mapping[str, typing.Any]: ...
+    async def get_annihilation_simulacrum(
+        self,
+        uid: typing.Optional[int] = None,
+        *,
+        previous: bool = False,
+        lang: typing.Optional[str] = None,
+        raw: bool = False,
+    ) -> typing.Union[models.AnnihilationSimulacrum, typing.Mapping[str, typing.Any]]:
+        """Get ZZZ Annihilation Simulacrum stats."""
+        payload = {"schedule_type": 2 if previous else 1}
+        data = await self._request_zzz_record(
+            "holo_boss_detail", uid, lang=lang, payload=payload, use_uid_in_payload=True
+        )
+
+        data = self._add_timezone_to_data(data, ("start_time", "end_time"), game=types.Game.ZZZ, uid=uid)
+
+        if raw:
+            return data
+        return models.AnnihilationSimulacrum(**data)
+
     async def get_lost_void_summary(
         self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
     ) -> models.LostVoidSummary:
