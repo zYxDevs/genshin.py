@@ -154,6 +154,16 @@ RECORD_URL = GameRoute(
 )
 NAP_LEDGER_URL = Route("https://sg-public-api.hoyolab.com/event/nap_ledger")
 
+NAP_CULTIVATE_URL = InternationalRoute(
+    overseas="https://sg-act-public-api.hoyolab.com/event/nap_cultivate_tool",
+    chinese="https://api-takumi.mihoyo.com/event/nap_cultivate_tool",
+)
+
+NAP_BADGE_LOGIN_URL = InternationalRoute(
+    overseas="https://sg-act-public-api.hoyolab.com/common/badge/v1/login/account",
+    chinese="https://api-takumi.mihoyo.com/common/badge/v1/login/account",
+)
+
 CARD_WAPI_URL = InternationalRoute(
     overseas="https://bbs-api-os.hoyolab.com/game_record/card/wapi",
     chinese="https://api-takumi-record.mihoyo.com/game_record/app/card/wapi",
