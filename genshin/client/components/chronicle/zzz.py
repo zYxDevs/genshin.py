@@ -18,6 +18,9 @@ __all__ = ("ZZZBattleChronicleClient",)
 class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
     """ZZZ battle chronicle component."""
 
+    _upgrade_guide_login_lock: typing.Optional[asyncio.Lock] = None
+    """Serializes ``e_nap_token`` refreshes so concurrent recoveries don't race."""
+
     async def _request_zzz_record(
         self,
         endpoint: str,
@@ -228,22 +231,39 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             headers.update(ds.get_ds_headers(region=region, data=data, params=params, lang=lang))
         return headers
 
-    async def _login_upgrade_guide(self, uid: int, *, lang: typing.Optional[str] = None) -> None:
+    async def _login_upgrade_guide(
+        self, uid: int, *, lang: typing.Optional[str] = None, stale_token: typing.Optional[str] = None
+    ) -> None:
         """Obtain the ``e_nap_token`` cookie required by the ZZZ agent upgrade guide.
 
         The response sets a fresh ``e_nap_token`` cookie which the cookie manager
-        merges into the session automatically.
+        merges into the session automatically. Concurrent callers are serialized by a
+        lock; if ``stale_token`` is given and another caller already refreshed the
+        token while we waited, the login is skipped.
         """
-        # Drop stale session cookies so the fresh ones from the response are stored. The
-        # cookie manager only merges cookie keys it doesn't already have, so the token
-        # (e_nap_token), its paired risk-control token (e_lrsag), and the load-balancer
-        # affinity cookies must all be cleared to be refreshed together — a stale
-        # SERVERID otherwise routes the new token to the wrong backend.
-        cookies = getattr(self.cookie_manager, "cookies", None)
-        if isinstance(cookies, dict):
-            for key in ("e_nap_token", "e_lrsag", "SERVERID", "SERVERCORSID"):
-                cookies.pop(key, None)
+        lock = self._upgrade_guide_login_lock
+        if lock is None:
+            lock = self._upgrade_guide_login_lock = asyncio.Lock()
 
+        async with lock:
+            # Drop stale session cookies so the fresh ones from the response are stored. The
+            # cookie manager only merges cookie keys it doesn't already have, so the token
+            # (e_nap_token), its paired risk-control token (e_lrsag), and the load-balancer
+            # affinity cookies must all be cleared to be refreshed together — a stale
+            # SERVERID otherwise routes the new token to the wrong backend.
+            cookies = getattr(self.cookie_manager, "cookies", None)
+            if isinstance(cookies, dict):
+                # Another coroutine already refreshed the token while we waited for the lock.
+                current_token = typing.cast("typing.Optional[str]", cookies.get("e_nap_token"))
+                if stale_token is not None and current_token and current_token != stale_token:
+                    return
+                for key in ("e_nap_token", "e_lrsag", "SERVERID", "SERVERCORSID"):
+                    cookies.pop(key, None)
+
+            await self._do_login_upgrade_guide(uid, lang=lang)
+
+    async def _do_login_upgrade_guide(self, uid: int, *, lang: typing.Optional[str] = None) -> None:
+        """Perform the upgrade guide login request (must be called while holding the login lock)."""
         lang = lang or self.lang
         region = utility.recognize_region(uid, game=types.Game.ZZZ) or types.Region.OVERSEAS
         body = {
@@ -267,20 +287,34 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         lang: typing.Optional[str] = None,
         body: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> typing.Mapping[str, typing.Any]:
-        """Make a request towards the ZZZ agent upgrade guide tool."""
+        """Make a request towards the ZZZ agent upgrade guide tool.
+
+        The ``e_nap_token`` cookie obtained by :meth:`_login_upgrade_guide` stays valid
+        for ~48 hours, so it is reused across requests. A fresh login is only performed
+        when the token is missing, or when the server rejects it with an
+        ``InvalidCookies`` (-100) error, after which the request is retried once.
+        """
         uid = uid or await self._get_uid(types.Game.ZZZ)
-        await self._login_upgrade_guide(uid, lang=lang)
+
+        cookies = getattr(self.cookie_manager, "cookies", None)
+        if not (isinstance(cookies, dict) and cookies.get("e_nap_token")):
+            await self._login_upgrade_guide(uid, lang=lang)
 
         lang = lang or self.lang
         region = utility.recognize_region(uid, game=types.Game.ZZZ) or types.Region.OVERSEAS
         params = {"uid": uid, "region": utility.recognize_zzz_server(uid)}
-        return await self.request(
-            routes.NAP_CULTIVATE_URL.get_url(region) / endpoint,
-            method="POST" if body is not None else "GET",
-            params=params,
-            data=body,
-            headers=self._upgrade_guide_headers(region, lang=lang, data=body, params=params),
-        )
+        url = routes.NAP_CULTIVATE_URL.get_url(region) / endpoint
+        headers = self._upgrade_guide_headers(region, lang=lang, data=body, params=params)
+        method = "POST" if body is not None else "GET"
+
+        try:
+            return await self.request(url, method=method, params=params, data=body, headers=headers)
+        except errors.InvalidCookies:
+            stale_token = (
+                typing.cast("typing.Optional[str]", cookies.get("e_nap_token")) if isinstance(cookies, dict) else None
+            )
+            await self._login_upgrade_guide(uid, lang=lang, stale_token=stale_token)
+            return await self.request(url, method=method, params=params, data=body, headers=headers)
 
     async def get_zzz_upgrade_guide_agents(
         self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
