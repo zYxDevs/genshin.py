@@ -174,7 +174,8 @@ class UpgradeGuideAgentDetail(UpgradeGuideBaseAgent):
     promotes: int
     """Current ascension (promotion) level."""
     unlock: bool
-    awaken_info: UpgradeGuideAwakenInfo = Aliased("skill_awaken")
+    awaken_info: typing.Optional[UpgradeGuideAwakenInfo] = Aliased("skill_awaken", default=None)
+    """``None`` for agents the user has not unlocked."""
 
 
 class RecommendedStat(APIModel):
@@ -343,8 +344,10 @@ class ZZZAgentUpgradeGuide(APIModel):
     weapon: typing.Optional[UpgradeGuideWEngine] = None
     plan: RecommendedBuild
     """The recommended build (upgrade guide)."""
-    level_caps: LevelCapInfo = Aliased("item_info")
-    next_level_caps: LevelCapInfo = Aliased("next_item_info")
+    level_caps: typing.Optional[LevelCapInfo] = Aliased("item_info", default=None)
+    """``None`` for agents the user has not unlocked."""
+    next_level_caps: typing.Optional[LevelCapInfo] = Aliased("next_item_info", default=None)
+    """``None`` for agents the user has not unlocked."""
     user: UpgradeGuideUser
     my_plan_id: str
     my_plan_list: typing.Sequence[typing.Any]
