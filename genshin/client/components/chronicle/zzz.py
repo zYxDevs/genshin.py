@@ -20,6 +20,8 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
 
     _upgrade_guide_login_lock: typing.Optional[asyncio.Lock] = None
     """Serializes ``e_nap_token`` refreshes so concurrent recoveries don't race."""
+    _upgrade_guide_login_loop: typing.Optional[asyncio.AbstractEventLoop] = None
+    """The event loop the login lock is bound to; the lock is recreated when it changes."""
 
     async def _request_zzz_record(
         self,
@@ -241,9 +243,14 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         lock; if ``stale_token`` is given and another caller already refreshed the
         token while we waited, the login is skipped.
         """
+        # Bind the lock to the running loop, recreating it if the loop changed. A single
+        # Client may be reused across event loops (e.g. successive asyncio.run calls), and
+        # an asyncio.Lock cannot be awaited from a loop other than the one that created it.
+        loop = asyncio.get_running_loop()
         lock = self._upgrade_guide_login_lock
-        if lock is None:
+        if lock is None or self._upgrade_guide_login_loop is not loop:
             lock = self._upgrade_guide_login_lock = asyncio.Lock()
+            self._upgrade_guide_login_loop = loop
 
         async with lock:
             # Drop stale session cookies so the fresh ones from the response are stored. The
