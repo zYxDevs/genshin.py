@@ -72,16 +72,20 @@ class UpgradeGuideAgentInfo(UpgradeGuideBaseAgent):
     """Also known as Mindscape Cinema in-game."""
 
 
-class ZZZUpgradeGuideAgent(APIModel):
+class ZZZUpgradeGuideAgent(UpgradeGuideAgentInfo):
     """An entry in the upgrade guide tool's agent list."""
 
-    avatar: UpgradeGuideAgentInfo
     unlocked: bool
     is_up: bool
     """Whether the agent is currently on a rate-up banner."""
     is_teaser: bool
     """Whether the agent is unreleased (teaser/preview only)."""
     is_top: bool
+
+    @pydantic.model_validator(mode="before")
+    @classmethod
+    def __unnest_avatar(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
+        return {**values, **values.pop("avatar", {})}
 
 
 class UpgradeGuideAgentProperty(ZZZAgentProperty):

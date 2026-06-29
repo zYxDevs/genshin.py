@@ -300,6 +300,9 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         if isinstance(character_id, int):
             character_id = [character_id]
 
+        if len(character_id) > 10:
+            raise ValueError("Cannot request more than 10 agents at once.")
+
         avatar_list = [
             {"avatar_id": id_, "is_teaser": False, "teaser_need_weapon": False, "teaser_sp_skill": False}
             for id_ in character_id
@@ -308,6 +311,29 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             "user/batch_avatar_detail_v2", uid, lang=lang, body={"avatar_list": avatar_list}
         )
         return [models.ZZZAgentUpgradeGuide(**item) for item in data["list"]]
+
+    async def get_all_zzz_agent_upgrade_guides(
+        self,
+        uid: typing.Optional[int] = None,
+        *,
+        unlocked_only: bool = True,
+        lang: typing.Optional[str] = None,
+    ) -> typing.Sequence[models.ZZZAgentUpgradeGuide]:
+        """Get the upgrade guides for all of the user's agents.
+
+        The agents are fetched first, then their guides are requested in batches of 10
+        simultaneously. If ``unlocked_only`` is ``True`` (the default), only unlocked
+        agents are included.
+        """
+        agents = await self.get_zzz_upgrade_guide_agents(uid, lang=lang)
+        if unlocked_only:
+            agents = [agent for agent in agents if agent.unlocked]
+
+        ids = [agent.id for agent in agents]
+        batches = [ids[i : i + 10] for i in range(0, len(ids), 10)]
+        tasks = [self.get_zzz_agent_upgrade_guide(batch, uid=uid, lang=lang) for batch in batches]
+        results = await asyncio.gather(*tasks)
+        return [guide for batch_result in results for guide in batch_result]
 
     @typing.overload
     async def get_shiyu_defense(
