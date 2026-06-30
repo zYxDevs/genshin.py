@@ -288,9 +288,13 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             # SERVERID otherwise routes the new token to the wrong backend.
             cookies = getattr(self.cookie_manager, "cookies", None)
             if isinstance(cookies, dict):
-                # Another coroutine already refreshed the token while we waited for the lock.
+                # Re-check under the lock: another coroutine may have logged in while we
+                # waited. On the missing-token path (stale_token is None) any token will do;
+                # on the retry path, skip only once the rejected token has been replaced.
+                # Skipping here is what prevents concurrent batches from clearing a freshly
+                # minted token out from under each other's in-flight cultivate requests.
                 current_token = typing.cast("typing.Optional[str]", cookies.get("e_nap_token"))
-                if stale_token is not None and current_token and current_token != stale_token:
+                if current_token and current_token != stale_token:
                     return
                 for key in ("e_nap_token", "e_lrsag", "SERVERID", "SERVERCORSID"):
                     cookies.pop(key, None)
