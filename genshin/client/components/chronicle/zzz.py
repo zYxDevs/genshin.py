@@ -1,6 +1,7 @@
 """StarRail battle chronicle component."""
 
 import asyncio
+import contextlib
 import functools
 import typing
 
@@ -22,6 +23,10 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
     """Serializes ``e_nap_token`` refreshes so concurrent recoveries don't race."""
     _upgrade_guide_login_loop: typing.Optional[asyncio.AbstractEventLoop] = None
     """The event loop the login lock is bound to; the lock is recreated when it changes."""
+    _device_id_suppressions: int = 0
+    """Refcount of in-flight upgrade guide requests that have stripped ``x-rpc-device_id``."""
+    _suppressed_device_id: typing.Optional[str] = None
+    """The ``x-rpc-device_id`` removed while suppressed, restored once the refcount hits zero."""
 
     async def _request_zzz_record(
         self,
@@ -233,6 +238,29 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             headers.update(ds.get_ds_headers(region=region, data=data, params=params, lang=lang))
         return headers
 
+    @contextlib.contextmanager
+    def _suppress_device_id(self) -> typing.Iterator[None]:
+        """Temporarily remove the ``x-rpc-device_id`` header for the duration of the block.
+
+        The agent upgrade guide (cultivate tool) endpoints reject requests carrying an
+        ``x-rpc-device_id`` header with a ``-100`` "Not Logged In" error, so it must be
+        omitted even when the client was constructed with a device id. The removal is
+        refcounted: the concurrent per-batch requests issued by
+        :meth:`get_all_zzz_agent_upgrade_guides` each enter this block, and the header is
+        only restored once the last of them has finished. ``__enter__`` and ``__exit__``
+        run without awaiting, so the refcount stays consistent under asyncio concurrency.
+        """
+        if self._device_id_suppressions == 0:
+            self._suppressed_device_id = self.custom_headers.pop("x-rpc-device_id", None)
+        self._device_id_suppressions += 1
+        try:
+            yield
+        finally:
+            self._device_id_suppressions -= 1
+            if self._device_id_suppressions == 0 and self._suppressed_device_id is not None:
+                self.custom_headers["x-rpc-device_id"] = self._suppressed_device_id
+                self._suppressed_device_id = None
+
     async def _login_upgrade_guide(
         self, uid: int, *, lang: typing.Optional[str] = None, stale_token: typing.Optional[str] = None
     ) -> None:
@@ -279,12 +307,13 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             "region": utility.recognize_zzz_server(uid),
             "uid": str(uid),
         }
-        await self.request(
-            routes.NAP_BADGE_LOGIN_URL.get_url(region),
-            method="POST",
-            data=body,
-            headers=self._upgrade_guide_headers(region, lang=lang, data=body),
-        )
+        with self._suppress_device_id():
+            await self.request(
+                routes.NAP_BADGE_LOGIN_URL.get_url(region),
+                method="POST",
+                data=body,
+                headers=self._upgrade_guide_headers(region, lang=lang, data=body),
+            )
 
     async def _request_upgrade_guide(
         self,
@@ -315,13 +344,15 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         method = "POST" if body is not None else "GET"
 
         try:
-            return await self.request(url, method=method, params=params, data=body, headers=headers)
+            with self._suppress_device_id():
+                return await self.request(url, method=method, params=params, data=body, headers=headers)
         except errors.InvalidCookies:
             stale_token = (
                 typing.cast("typing.Optional[str]", cookies.get("e_nap_token")) if isinstance(cookies, dict) else None
             )
             await self._login_upgrade_guide(uid, lang=lang, stale_token=stale_token)
-            return await self.request(url, method=method, params=params, data=body, headers=headers)
+            with self._suppress_device_id():
+                return await self.request(url, method=method, params=params, data=body, headers=headers)
 
     async def get_zzz_upgrade_guide_agents(
         self, uid: typing.Optional[int] = None, *, lang: typing.Optional[str] = None
