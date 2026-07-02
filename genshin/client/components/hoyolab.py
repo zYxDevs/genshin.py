@@ -555,9 +555,23 @@ class HoyolabClient(base.BaseClient):
         )
         return [models.AccompanyCharacterGame(**i) for i in data["game_roles_list"]]
 
+    def _complete_stuid_cookie(self) -> None:
+        """Add the stuid cookie if it is missing.
+
+        Accompany endpoints that change state authenticate with the stoken and
+        require the account id to be present under the stuid cookie name.
+        """
+        if not isinstance(self.cookie_manager, managers.CookieManager):
+            return
+
+        cookies = self.cookie_manager.cookies
+        if cookies and "stoken" in cookies and "stuid" not in cookies and self.cookie_manager.user_id is not None:
+            cookies["stuid"] = str(self.cookie_manager.user_id)
+
     @base.region_specific(types.Region.OVERSEAS)
     async def accompany_character(self, *, role_id: int, topic_id: int) -> models.AccompanyResult:
         """Accompany a character, role_id and topic_id can be found by calling get_accompany_characters."""
+        self._complete_stuid_cookie()
         data = await self.request_bbs(
             "community/apihub/api/user/accompany/role", params=dict(role_id=role_id, topic_id=topic_id)
         )
