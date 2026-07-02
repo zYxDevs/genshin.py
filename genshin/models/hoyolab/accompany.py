@@ -3,15 +3,18 @@ from typing import Any, Sequence
 from pydantic import field_validator
 
 from genshin import types
-from genshin.models.model import Aliased, APIModel
+from genshin.models.model import Aliased, APIModel, UnixDateTime
 
 __all__ = (
     "AccompanyCharacter",
     "AccompanyCharacterAttribute",
+    "AccompanyCharacterDetails",
     "AccompanyCharacterGame",
     "AccompanyCharacterInfo",
     "AccompanyCharacterProfile",
+    "AccompanyInfo",
     "AccompanyResult",
+    "AccompanyVoiceSetting",
 )
 
 
@@ -84,3 +87,30 @@ class AccompanyResult(APIModel):
 
     accompany_days: int
     points_increased: int = Aliased("increase_accompany_point")
+
+
+class AccompanyInfo(APIModel):
+    """Accompany progress of a character."""
+
+    days: int = Aliased("accompany_days")
+    quarter_days: int = Aliased("accompany_quarter_days")
+    accompanied_today: bool = Aliased("is_accompany_today")
+    can_accompany: bool
+    points: int = Aliased("accompany_point")
+    available_points: int = Aliased("available_accompany_point")
+
+
+class AccompanyCharacterDetails(APIModel):
+    """Accompany character page details."""
+
+    info: AccompanyCharacterInfo = Aliased("basic")
+    profile: AccompanyCharacterProfile = Aliased("attr_profile")
+    accompany_info: AccompanyInfo
+
+
+class AccompanyVoiceSetting(APIModel):
+    """Voice and subtitle language setting of an accompany character."""
+
+    voice_lang: str
+    script_lang: str
+    updated_at: UnixDateTime = Aliased("setting_unix")
