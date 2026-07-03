@@ -1,4 +1,4 @@
-from typing import Any, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 from pydantic import field_validator
 
@@ -14,7 +14,10 @@ __all__ = (
     "AccompanyCharacterProfile",
     "AccompanyInfo",
     "AccompanyResult",
+    "AccompanyVoiceLine",
     "AccompanyVoiceSetting",
+    "AccompanyWikiImage",
+    "AccompanyWikiVideo",
 )
 
 
@@ -100,12 +103,55 @@ class AccompanyInfo(APIModel):
     available_points: int = Aliased("available_accompany_point")
 
 
+class AccompanyVoiceLine(APIModel):
+    """Accompany character voice line."""
+
+    voice_url: str = Aliased("voice")
+    text: str = Aliased("script")
+
+
+class AccompanyWikiVideo(APIModel):
+    """Accompany character wiki video."""
+
+    video_id: str
+    video_url: str
+    cover_url: str
+    synced_at: UnixDateTime = Aliased("sync_unix")
+    sort: int
+
+
+class AccompanyWikiImage(APIModel):
+    """Accompany character wiki gallery image."""
+
+    image_url: str
+    origin_url: str
+    height: int
+    width: int
+    size: int
+    synced_at: UnixDateTime = Aliased("sync_unix")
+
+
 class AccompanyCharacterDetails(APIModel):
     """Accompany character page details."""
 
     info: AccompanyCharacterInfo = Aliased("basic")
     profile: AccompanyCharacterProfile = Aliased("attr_profile")
     accompany_info: AccompanyInfo
+    voice_scripts: Mapping[str, Sequence[AccompanyVoiceLine]] = Aliased("attr_wiki_voice_script")
+    videos: Sequence[AccompanyWikiVideo] = Aliased("attr_wiki_video")
+    gallery: Sequence[AccompanyWikiImage] = Aliased("attr_wiki_gallery")
+
+    @field_validator("voice_scripts", mode="before")
+    def __unnest_voice_scripts(cls, v: Optional[dict[str, Any]]) -> dict[str, Any]:
+        return {name: script["list"] for name, script in v["scripts"].items()} if v else {}
+
+    @field_validator("videos", mode="before")
+    def __unnest_videos(cls, v: Optional[dict[str, Any]]) -> list[Any]:
+        return v["videos"] if v else []
+
+    @field_validator("gallery", mode="before")
+    def __unnest_gallery(cls, v: Optional[dict[str, Any]]) -> list[Any]:
+        return v["images"] if v else []
 
 
 class AccompanyVoiceSetting(APIModel):
