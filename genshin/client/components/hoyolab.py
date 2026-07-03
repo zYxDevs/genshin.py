@@ -558,8 +558,9 @@ class HoyolabClient(base.BaseClient):
     def _complete_stuid_cookie(self) -> None:
         """Add the stuid cookie if it is missing.
 
-        Accompany endpoints that change state authenticate with the stoken and
-        require the account id to be present under the stuid cookie name.
+        Accompany endpoints authenticate with the stoken and require the account id
+        to be present under the stuid cookie name, otherwise they either fail with
+        retcode -100 or silently return no user-specific data.
         """
         if not isinstance(self.cookie_manager, managers.CookieManager):
             return
@@ -582,6 +583,7 @@ class HoyolabClient(base.BaseClient):
         self, *, topic_id: int, lang: typing.Optional[str] = None
     ) -> models.AccompanyCharacterDetails:
         """Get the page details of an accompany character, topic_id can be found by calling get_accompany_characters."""
+        self._complete_stuid_cookie()
         data = await self.request_bbs(
             "community/painter/api/topic/info",
             params=dict(topic_id=topic_id, scene="SceneAll"),
