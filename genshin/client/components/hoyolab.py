@@ -589,7 +589,7 @@ class HoyolabClient(base.BaseClient):
             params=dict(topic_id=topic_id, scene="SceneAll"),
             lang=lang,
         )
-        return models.AccompanyCharacterDetails(**data["info"]["role_info"])
+        return models.AccompanyCharacterDetails(**data["info"]["role_info"], stats=data["info"]["stat"])
 
     @base.region_specific(types.Region.OVERSEAS)
     async def get_accompany_voice_setting(self, *, game_id: int, role_id: int) -> models.AccompanyVoiceSetting:
