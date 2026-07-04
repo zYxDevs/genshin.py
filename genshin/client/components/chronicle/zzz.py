@@ -239,7 +239,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
         return headers
 
     @contextlib.contextmanager
-    def _suppress_device_id(self) -> typing.Iterator[None]:
+    def _suppress_device_id(self) -> typing.Generator[None, None, None]:
         """Temporarily remove the ``x-rpc-device_id`` header for the duration of the block.
 
         The agent upgrade guide (cultivate tool) endpoints reject requests carrying an
