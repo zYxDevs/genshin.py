@@ -346,7 +346,7 @@ class AccompanyCharacterDetails(APIModel):
     voice_scripts: Mapping[str, Sequence[AccompanyVoiceLine]] = Aliased("attr_wiki_voice_script")
     videos: Sequence[AccompanyWikiVideo] = Aliased("attr_wiki_video")
     gallery: Sequence[AccompanyWikiImage] = Aliased("attr_wiki_gallery")
-    widget: AccompanyWidget = Aliased("attr_widget")
+    widget: Optional[AccompanyWidget] = Aliased("attr_widget", default=None)
     moment_posts: Sequence[AccompanyMomentPost] = Aliased("attr_moment")
     feed_info: AccompanyFeedInfo
     game_jump_url: str
