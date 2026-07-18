@@ -297,7 +297,7 @@ class RecommendedBuild(APIModel, Unique):
     name: str
     description: str = Aliased("desc")
     released_at: UnixDateTime
-    detail: RecommendedBuildDetail = Aliased("item")
+    detail: typing.Optional[RecommendedBuildDetail] = Aliased("item", default=None)
 
 
 class DiscLevelCap(APIModel):
