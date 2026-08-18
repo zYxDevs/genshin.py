@@ -84,10 +84,21 @@ class DeadlyAssault(APIModel):
     total_score: int
     total_star: int
     rank_percent: str
+    total_max_score: int = 0
+    room_max_score: int = 0
+
+    has_hard: bool = False
+    """Whether Adversity Mode data is available."""
+    hard_challenges: typing.Sequence[DeadlyAssaultChallenge] = Aliased("hard_list", default=())
+    """Adversity Mode challenges."""
+    hard_rank_percent: typing.Optional[str] = None
+    """Adversity Mode rank percent."""
 
     nickname: str = Aliased("nick_name")
     player_avatar: str = Aliased("avatar_icon")
 
-    @pydantic.field_validator("rank_percent", mode="before")
-    def __parse_rank_percent(cls, value: int) -> str:
+    @pydantic.field_validator("rank_percent", "hard_rank_percent", mode="before")
+    def __parse_rank_percent(cls, value: typing.Optional[int]) -> typing.Optional[str]:
+        if value is None:
+            return None
         return f"{value / 100}%"
