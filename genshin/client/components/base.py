@@ -34,7 +34,8 @@ def parse_loose_headers(
     loose_headers: typing.Optional[aiohttp.typedefs.LooseHeaders] = None,
 ) -> multidict.CIMultiDict[str]:
     """Parse loose aiohttp headers."""
-    return multidict.CIMultiDict((str(k), str(v)) for k, v in dict(loose_headers or ()).items())
+    headers: typing.Dict[typing.Any, typing.Any] = dict(loose_headers or ())
+    return multidict.CIMultiDict((str(k), str(v)) for k, v in headers.items())
 
 
 class BaseClient(abc.ABC):
