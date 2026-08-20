@@ -482,6 +482,33 @@ class HoyolabClient(base.BaseClient):
         )
         return models.MimoLotteryResult(**data)
 
+    @base.region_specific(types.Region.OVERSEAS)
+    async def get_mimo_point_history(
+        self,
+        operation: models.MimoPointOperation,
+        *,
+        page: int = 1,
+        page_size: int = 20,
+        game_id: typing.Optional[int] = None,
+        version_id: typing.Optional[int] = None,
+        game: typing.Optional[typing.Union[typing.Literal["hoyolab"], types.Game]] = None,
+        lang: typing.Optional[str] = None,
+    ) -> typing.Sequence[models.MimoPointRecord]:
+        """Get the Traveling Mimo point history for the given operation (income or expense)."""
+        game_id, version_id = await self._parse_mimo_args(game_id, version_id, game)
+        data = await self._request_mimo(
+            "point-record",
+            params=dict(
+                game_id=game_id,
+                lang=lang or self.lang,
+                version_id=version_id,
+                operator_type=operation.value,
+                page=page,
+                page_size=page_size,
+            ),
+        )
+        return [models.MimoPointRecord(**i) for i in data["list"]]
+
     async def reply_to_post(self, content: str, *, post_id: int) -> int:
         """Reply to a community post."""
         data = await self.request_bbs(

@@ -5,13 +5,16 @@ import typing
 import pydantic
 
 from genshin import types
-from genshin.models.model import Aliased, APIModel, TZDateTime, prevent_enum_error
+from genshin.models.model import Aliased, APIModel, TZDateTime, UnixDateTime, prevent_enum_error
 
 __all__ = (
     "MimoGame",
     "MimoLotteryInfo",
     "MimoLotteryResult",
     "MimoLotteryReward",
+    "MimoPointOperation",
+    "MimoPointRecord",
+    "MimoPointType",
     "MimoShopItem",
     "MimoShopItemStatus",
     "MimoTask",
@@ -58,6 +61,21 @@ class MimoTaskType(enum.IntEnum):
     """e.g. Log into the game for 7 days"""
     ZZZ_GAME = 16
     """e.g. Reach 400 Engagement today"""
+
+
+class MimoPointOperation(enum.IntEnum):
+    """Mimo point record operation type."""
+
+    INCOME = 1
+    EXPENSE = 2
+
+
+class MimoPointType(enum.IntEnum):
+    """Mimo point record point type."""
+
+    MISSION = 1
+    PRIZE_DRAW = 2
+    EXCHANGED = 4
 
 
 class MimoShopItemStatus(enum.IntEnum):
@@ -125,6 +143,21 @@ class MimoShopItem(APIModel):
     user_count: int
     next_refresh_time: datetime.timedelta
     expire_day: int
+
+
+class MimoPointRecord(APIModel):
+    """Mimo point record."""
+
+    operation: MimoPointOperation = Aliased("operator_type")
+    point_type: typing.Union[int, MimoPointType]
+    point: int
+    created_at: UnixDateTime = Aliased("create_time")
+    description: str = Aliased("desc")
+    code: str = Aliased("exchange_code")
+
+    @pydantic.field_validator("point_type", mode="before")
+    def __transform_point_type(cls, v: int) -> typing.Union[int, MimoPointType]:
+        return prevent_enum_error(v, MimoPointType)
 
 
 class PartialMimoLotteryReward(APIModel):
