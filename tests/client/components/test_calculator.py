@@ -18,7 +18,7 @@ async def test_calculator_weapons(client: genshin.Client):
     assert len(weapons) >= 126
 
     weapon = min(weapons, key=lambda weapon: weapon.id)
-    assert weapon.name == "Favonius Sword"
+    assert weapon.name == "Amenoma Kageuchi"
     assert weapon.max_level == 90
     assert weapon.level == 0
 
