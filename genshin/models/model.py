@@ -74,7 +74,7 @@ def parse_timestamp(
     if isinstance(value, str):
         value = int(value)
     if isinstance(value, int):
-        return datetime.datetime.fromtimestamp(value).replace(tzinfo=datetime.timezone.utc)
+        return datetime.datetime.fromtimestamp(value, tz=datetime.timezone.utc)
     raise ValueError(f"Invalid timestamp value provided: {value!r}")
 
 

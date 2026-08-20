@@ -5,7 +5,7 @@ import typing
 
 import pydantic
 
-from genshin.models.model import Aliased, APIModel, DateTime, LevelField
+from genshin.models.model import Aliased, APIModel, LevelField, UnixDateTime
 
 __all__ = (
     "HardChallenge",
@@ -53,8 +53,8 @@ class HardChallengeSeason(APIModel):
 
     id: int = Aliased("schedule_id")
     name: str
-    start_at: DateTime = Aliased("start_date_time")
-    end_at: DateTime = Aliased("end_date_time")
+    start_at: UnixDateTime = Aliased("start_time")
+    end_at: UnixDateTime = Aliased("end_time")
 
 
 class HardChallengeBestRecord(APIModel):

@@ -416,8 +416,8 @@ class GenshinBattleChronicleClient(base.BaseBattleChronicleClient):
 
         for item in data["data"]:
             if item["schedule"]["is_valid"]:
-                self._add_timezone_to_data(
-                    item["schedule"], ("start_date_time", "end_date_time"), game=types.Game.GENSHIN, uid=uid
+                item["schedule"] = self._add_timezone_to_data(
+                    item["schedule"], ("start_time", "end_time"), game=types.Game.GENSHIN, uid=uid
                 )
                 result.append(models.HardChallenge(**item))
 
