@@ -581,7 +581,7 @@ class BaseClient(abc.ABC):
         if game is None:
             return None
 
-        uid = uid or self.uid
+        uid = uid or self.uids.get(game)
         if uid is None:
             return None
 
