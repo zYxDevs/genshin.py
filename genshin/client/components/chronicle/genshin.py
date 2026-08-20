@@ -172,6 +172,9 @@ class GenshinBattleChronicleClient(base.BaseBattleChronicleClient):
         if raw:
             return data
 
+        data = self._add_timezone_to_data(
+            data, ("start_time", "end_time", "timestamp"), game=types.Game.GENSHIN, uid=uid
+        )
         return models.SpiralAbyss(**data)
 
     @typing.overload
@@ -214,6 +217,9 @@ class GenshinBattleChronicleClient(base.BaseBattleChronicleClient):
         if raw:
             return data
 
+        data = self._add_timezone_to_data(
+            data, ("start_date_time", "end_date_time", "finish_date_time"), game=types.Game.GENSHIN, uid=uid
+        )
         return models.ImgTheater(**data)
 
     @typing.overload

@@ -178,6 +178,9 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         data = await self._request_starrail_record("challenge", uid, lang=lang, payload=payload)
         if raw:
             return data
+        data = self._add_timezone_to_data(
+            data, ("begin_time", "end_time", "challenge_time"), game=types.Game.STARRAIL, uid=uid
+        )
         return models.StarRailChallenge(**data)
 
     async def get_starrail_rogue(
@@ -223,6 +226,9 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         data = await self._request_starrail_record("challenge_story", uid, lang=lang, payload=payload)
         if raw:
             return data
+        data = self._add_timezone_to_data(
+            data, ("begin_time", "end_time", "challenge_time"), game=types.Game.STARRAIL, uid=uid
+        )
         return models.StarRailPureFiction(**data)
 
     @typing.overload
@@ -256,6 +262,9 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         data = await self._request_starrail_record("challenge_boss", uid, lang=lang, payload=payload)
         if raw:
             return data
+        data = self._add_timezone_to_data(
+            data, ("begin_time", "end_time", "challenge_time", "last_update_time"), game=types.Game.STARRAIL, uid=uid
+        )
         return models.StarRailAPCShadow(**data)
 
     async def get_starrail_event_calendar(
@@ -311,4 +320,7 @@ class StarRailBattleChronicleClient(base.BaseBattleChronicleClient):
         data = await self._request_starrail_record("challenge_peak", uid, lang=lang, payload=payload)
         if raw:
             return data
+        data = self._add_timezone_to_data(
+            data, ("begin_time", "end_time", "challenge_time"), game=types.Game.STARRAIL, uid=uid
+        )
         return models.AnomalyArbitration(**data)

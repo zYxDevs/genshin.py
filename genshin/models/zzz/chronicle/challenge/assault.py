@@ -1,9 +1,8 @@
-import datetime
 import typing
 
 import pydantic
 
-from genshin.models.model import Aliased, APIModel, DateTime, TZDateTime
+from genshin.models.model import Aliased, APIModel, DateTime
 from genshin.models.zzz.character import ZZZElementType, ZZZSpecialty
 
 from .common import ChallengeBangboo
@@ -52,18 +51,12 @@ class DeadlyAssaultChallenge(APIModel):
     score: int
     star: int
     total_star: int
-    challenge_time: datetime.datetime
+    challenge_time: DateTime
 
     boss: DeadlyAssaultBoss
     buffs: typing.Sequence[DeadlyAssaultBuff] = Aliased("buffer")
     agents: typing.Sequence[DeadlyAssaultAgent] = Aliased("avatar_list")
     bangboo: typing.Optional[ChallengeBangboo] = Aliased("buddy", default=None)
-
-    @pydantic.field_validator("challenge_time", mode="before")
-    def __parse_datetime(cls, value: typing.Mapping[str, typing.Any]) -> typing.Optional[TZDateTime]:
-        if value:
-            return datetime.datetime(**value)
-        return None
 
     @pydantic.field_validator("boss", mode="before")
     def __parse_boss(cls, value: typing.List[typing.Mapping[str, typing.Any]]) -> DeadlyAssaultBoss:

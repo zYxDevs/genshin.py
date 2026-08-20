@@ -64,8 +64,13 @@ def convert_datetime(value: typing.Optional[typing.Mapping[str, typing.Any]]) ->
     raise ValueError(msg)
 
 
-def parse_timestamp(value: typing.Optional[typing.Union[str, int]]) -> datetime.datetime:
+def parse_timestamp(
+    value: typing.Optional[typing.Union[str, int, typing.Mapping[str, typing.Any]]],
+) -> datetime.datetime:
     """Parse a timestamp into a datetime object."""
+    if isinstance(value, typing.Mapping):
+        tz = datetime.timezone(datetime.timedelta(hours=value["tzinfo"]))
+        return datetime.datetime.fromtimestamp(int(value["timestamp"]), tz=tz)
     if isinstance(value, str):
         value = int(value)
     if isinstance(value, int):

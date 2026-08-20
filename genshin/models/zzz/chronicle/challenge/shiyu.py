@@ -4,7 +4,7 @@ import typing
 
 import pydantic
 
-from genshin.models.model import Aliased, APIModel, DateTime, TZDateTime
+from genshin.models.model import Aliased, APIModel, DateTime
 from genshin.models.zzz.character import ZZZElementType
 
 from .common import ChallengeBangboo
@@ -122,15 +122,8 @@ class ShiyuDefenseFloor(APIModel):
     buffs: list[ShiyuDefenseBuff]
     node_1: ShiyuDefenseNode
     node_2: ShiyuDefenseNode
-    challenge_time: TZDateTime = Aliased("floor_challenge_time")
+    challenge_time: DateTime = Aliased("floor_challenge_time")
     name: str = Aliased("zone_name")
-
-    @pydantic.field_validator("challenge_time", mode="before")
-    @classmethod
-    def __parse_datetime(cls, value: typing.Mapping[str, typing.Any]) -> typing.Optional[TZDateTime]:
-        if value:
-            return datetime.datetime(**value)
-        return None
 
 
 class ShiyuDefenseV1(APIModel):

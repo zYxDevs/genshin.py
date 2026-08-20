@@ -1,11 +1,10 @@
-import datetime
 import enum
 import typing
 
 import pydantic
 
 from genshin.models.genshin import character
-from genshin.models.model import Aliased, APIModel, TZDateTime
+from genshin.models.model import Aliased, APIModel, DateTime
 
 __all__ = (
     "Act",
@@ -68,13 +67,9 @@ class Act(APIModel):
     medal_obtained: bool = Aliased("is_get_medal")
     round_id: int
     finish_time: int  # As timestamp
-    finish_datetime: TZDateTime = Aliased("finish_date_time")
+    finish_datetime: DateTime = Aliased("finish_date_time")
     is_arcana: bool = Aliased("is_tarot", default=False)
     arcana_number: typing.Optional[int] = Aliased("tarot_serial_no", default=None)
-
-    @pydantic.field_validator("finish_datetime", mode="before")
-    def __parse_datetime(cls, value: typing.Mapping[str, typing.Any]) -> datetime.datetime:
-        return datetime.datetime(**value)
 
 
 class TheaterStats(APIModel):
@@ -103,12 +98,8 @@ class TheaterSchedule(APIModel):
     end_time: int  # As timestamp
     schedule_type: int  # Not sure what this is
     id: int = Aliased("schedule_id")
-    start_datetime: TZDateTime = Aliased("start_date_time")
-    end_datetime: TZDateTime = Aliased("end_date_time")
-
-    @pydantic.field_validator("start_datetime", "end_datetime", mode="before")
-    def __parse_datetime(cls, value: typing.Mapping[str, typing.Any]) -> datetime.datetime:
-        return datetime.datetime(**value)
+    start_datetime: DateTime = Aliased("start_date_time")
+    end_datetime: DateTime = Aliased("end_date_time")
 
 
 class BattleStatCharacter(APIModel):

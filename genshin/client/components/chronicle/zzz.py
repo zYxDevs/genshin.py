@@ -455,7 +455,12 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             msg = f"Unknown Shiyu Defense version: {version!r}"
             raise ValueError(msg)
 
-        self._add_timezone_to_data(data, ("hadal_begin_time", "hadal_end_time"), game=types.Game.ZZZ, uid=uid)
+        data = self._add_timezone_to_data(
+            data,
+            ("hadal_begin_time", "hadal_end_time", "challenge_time", "floor_challenge_time"),
+            game=types.Game.ZZZ,
+            uid=uid,
+        )
 
         if raw:
             return data
@@ -495,7 +500,9 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             "hadal_mem_detail_v2", uid, lang=lang, payload=payload, use_uid_in_payload=True
         )
 
-        self._add_timezone_to_data(data, ("start_time", "end_time"), game=types.Game.ZZZ, uid=uid)
+        data = self._add_timezone_to_data(
+            data, ("start_time", "end_time", "challenge_time"), game=types.Game.ZZZ, uid=uid
+        )
 
         if raw:
             return data
@@ -603,6 +610,7 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             use_uid_in_payload=True,
         )
         data = data["void_front_battle_detail"]
+        data = self._add_timezone_to_data(data, ("challenge_time",), game=types.Game.ZZZ, uid=uid)
         if raw:
             return data
         return models.ThresholdSimulation(**data)
