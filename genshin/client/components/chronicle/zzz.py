@@ -7,6 +7,7 @@ import typing
 
 from genshin import errors, paginators, types, utility
 from genshin.client import routes
+from genshin.client.manager import cookie as cookie_utility
 from genshin.models import zzz as models
 from genshin.models.genshin import gacha as gacha_models
 from genshin.utility import ds
@@ -302,7 +303,13 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             await self._do_login_upgrade_guide(uid, lang=lang)
 
     async def _do_login_upgrade_guide(self, uid: int, *, lang: typing.Optional[str] = None) -> None:
-        """Perform the upgrade guide login request (must be called while holding the login lock)."""
+        """Perform the upgrade guide login request (must be called while holding the login lock).
+
+        The badge login authenticates with the cookie token, which is invalidated whenever
+        a newer one is minted for the account elsewhere while the other cookies stay valid.
+        When the login is rejected and an stoken is available, a fresh cookie token is
+        minted from it and the login is retried once.
+        """
         lang = lang or self.lang
         region = utility.recognize_region(uid, game=types.Game.ZZZ) or types.Region.OVERSEAS
         body = {
@@ -312,12 +319,33 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
             "uid": str(uid),
         }
         with self._suppress_device_id():
-            await self.request(
-                routes.NAP_BADGE_LOGIN_URL.get_url(region),
-                method="POST",
-                data=body,
-                headers=self._upgrade_guide_headers(region, lang=lang, data=body),
-            )
+            try:
+                await self.request(
+                    routes.NAP_BADGE_LOGIN_URL.get_url(region),
+                    method="POST",
+                    data=body,
+                    headers=self._upgrade_guide_headers(region, lang=lang, data=body),
+                )
+            except errors.InvalidCookies:
+                cookies: typing.Optional[typing.MutableMapping[str, str]] = getattr(
+                    self.cookie_manager, "cookies", None
+                )
+                if not isinstance(cookies, dict) or not cookies.get("stoken"):
+                    raise
+
+                if region is types.Region.CHINESE:
+                    data = await cookie_utility.cn_fetch_cookie_token_with_stoken_v2(dict(cookies))
+                    cookies["account_id"] = data["uid"]
+                    cookies["cookie_token"] = data["cookie_token"]
+                else:
+                    cookies.update(await cookie_utility.fetch_cookie_with_stoken_v2(dict(cookies), token_types=[4]))
+
+                await self.request(
+                    routes.NAP_BADGE_LOGIN_URL.get_url(region),
+                    method="POST",
+                    data=body,
+                    headers=self._upgrade_guide_headers(region, lang=lang, data=body),
+                )
 
     async def _request_upgrade_guide(
         self,
