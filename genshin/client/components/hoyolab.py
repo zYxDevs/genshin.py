@@ -576,7 +576,7 @@ class HoyolabClient(base.BaseClient):
         """Get a list of accompany characters, this endpoint doesn't require cookies."""
         data = await self.request_bbs(
             "community/painter/api/getChannelRoleList",
-            cache=client_cache.cache_key("accp_chars"),
+            cache=client_cache.cache_key("accp_chars", lang=lang or self.lang),
             method="POST",
             lang=lang,
         )
