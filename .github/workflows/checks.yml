@@ -52,6 +52,9 @@ jobs:
       '/test'))
 
     strategy:
+      # Tests hit live APIs with a shared account; concurrent jobs invalidate
+      # each other's session tokens (e.g. the ZZZ upgrade guide e_nap_token).
+      max-parallel: 1
       matrix:
         python-version: [ "3.9", "3.10", "3.11" ]
 
