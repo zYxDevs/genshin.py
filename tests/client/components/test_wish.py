@@ -34,3 +34,15 @@ async def test_banner_details(lclient: genshin.Client):
 #     items = await lclient.get_genshin_gacha_items()
 #     assert items[0].is_character()
 #     assert not items[-1].is_character()
+
+
+async def test_fetch_authkey(client: genshin.Client):
+    try:
+        authkey = await client.fetch_authkey()
+    except genshin.InvalidCookies:
+        pytest.skip("Cookies do not contain a valid cookie_token")
+
+    assert client.authkey == authkey
+
+    history = await client.wish_history(200, limit=1).flatten()
+    assert history[0].banner_type == 200

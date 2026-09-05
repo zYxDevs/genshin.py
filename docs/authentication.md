@@ -120,6 +120,20 @@ Difficult, check <https://gist.github.com/jogerj/2372d0e5bee51e001a6d8956240d527
 
 No clue, maybe use a sniffer.
 
+### Fetching authkeys with cookies
+
+On HoYoLAB accounts, an authkey can be generated directly from cookies that contain a `cookie_token_v2` (together with `account_mid_v2` and `account_id_v2`). The authkey is stored on the client so paginators can use it right away.
+
+```py
+client = genshin.Client(cookies, game=genshin.Game.GENSHIN)
+authkey = await client.fetch_authkey()
+
+async for wish in client.wish_history():
+    pass
+```
+
+Transaction logs use a different kind of authkey, pass `auth_appid="csc"` to generate one for them.
+
 ### Setting authkeys automatically
 
 If you open a wish history or a wish details page in genshin, then the authkey will show up in your logfiles. It's possible to dynamically get the authkey using `genshin.utility.get_authkey()`.

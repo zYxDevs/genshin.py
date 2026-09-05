@@ -22,6 +22,7 @@ __all__ = [
     "CREATE_QRCODE_URL",
     "DETAIL_LEDGER_URL",
     "GACHA_URL",
+    "GEN_AUTHKEY_URL",
     "GET_COOKIE_TOKEN_BY_GAME_TOKEN_URL",
     "GET_FP_URL",
     "GET_STOKEN_BY_GAME_TOKEN_URL",
@@ -337,6 +338,7 @@ GAME_LOGIN_URL = GameRoute(
 GET_USER_REGION_URL = Route(
     "https://api-account-os.hoyoverse.com/account/binding/api/getUserGameRolesOfRegionByCookieToken"
 )
+GEN_AUTHKEY_URL = Route("https://api-account-os.hoyoverse.com/binding/api/genAuthKeyByCookieToken")
 GET_FP_URL = InternationalRoute(
     overseas="https://sg-public-data-api.hoyoverse.com/device-fp/api/getFp",
     chinese="https://public-data-api.mihoyo.com/device-fp/api/getFp",

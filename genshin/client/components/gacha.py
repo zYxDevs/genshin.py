@@ -60,6 +60,40 @@ class WishClient(base.BaseClient):
 
         return await self.request(url, params=params, **kwargs)
 
+    @base.region_specific(types.Region.OVERSEAS)
+    async def fetch_authkey(
+        self,
+        uid: typing.Optional[int] = None,
+        *,
+        game: typing.Optional[types.Game] = None,
+        auth_appid: typing.Literal["webview_gacha", "csc"] = "webview_gacha",
+    ) -> str:
+        """Generate an authkey for a game account using the cookie token and store it on the client.
+
+        Requires ``cookie_token_v2`` (with ``account_mid_v2`` and ``account_id_v2``) cookies.
+        ``webview_gacha`` authkeys are used for wish history, ``csc`` authkeys for transaction logs.
+        """
+        game = game or self.default_game
+        if game is None:
+            raise RuntimeError("No game provided")
+
+        uid = uid or await self._get_uid(game)
+
+        data = await self.request(
+            routes.GEN_AUTHKEY_URL.get_url(),
+            method="POST",
+            data=dict(
+                game_uid=str(uid),
+                region=utility.recognize_server(uid, game),
+                game_biz=utility.get_prod_game_biz(self.region, game),
+                auth_appid=auth_appid,
+            ),
+        )
+
+        authkey = urllib.parse.unquote(data["authkey"])
+        self.authkeys[game] = authkey
+        return authkey
+
     async def _get_gacha_page(
         self,
         end_id: int,
