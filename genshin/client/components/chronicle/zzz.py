@@ -8,6 +8,7 @@ import typing
 from genshin import errors, paginators, types, utility
 from genshin.client import routes
 from genshin.client.manager import cookie as cookie_utility
+from genshin.client.manager import managers
 from genshin.models import zzz as models
 from genshin.models.genshin import gacha as gacha_models
 from genshin.utility import ds
@@ -327,18 +328,19 @@ class ZZZBattleChronicleClient(base.BaseBattleChronicleClient):
                     headers=self._upgrade_guide_headers(region, lang=lang, data=body),
                 )
             except errors.InvalidCookies:
-                cookies: typing.Optional[typing.MutableMapping[str, str]] = getattr(
-                    self.cookie_manager, "cookies", None
-                )
-                if not isinstance(cookies, dict) or not cookies.get("stoken"):
+                if not isinstance(self.cookie_manager, managers.CookieManager):
+                    raise
+                cookies = dict(self.cookie_manager.cookies)
+                if not cookies.get("stoken"):
                     raise
 
+                new_cookies: typing.Mapping[str, str]
                 if region is types.Region.CHINESE:
-                    data = await cookie_utility.cn_fetch_cookie_token_with_stoken_v2(dict(cookies))
-                    cookies["account_id"] = data["uid"]
-                    cookies["cookie_token"] = data["cookie_token"]
+                    data = await cookie_utility.cn_fetch_cookie_token_with_stoken_v2(cookies)
+                    new_cookies = {"account_id": data["uid"], "cookie_token": data["cookie_token"]}
                 else:
-                    cookies.update(await cookie_utility.fetch_cookie_with_stoken_v2(dict(cookies), token_types=[4]))
+                    new_cookies = await cookie_utility.fetch_cookie_with_stoken_v2(cookies, token_types=[4])
+                await self.cookie_manager.update_cookies(new_cookies)
 
                 await self.request(
                     routes.NAP_BADGE_LOGIN_URL.get_url(region),

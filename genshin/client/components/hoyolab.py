@@ -582,7 +582,7 @@ class HoyolabClient(base.BaseClient):
         )
         return [models.AccompanyCharacterGame(**i) for i in data["game_roles_list"]]
 
-    def _complete_stuid_cookie(self) -> None:
+    async def _complete_stuid_cookie(self) -> None:
         """Add the stuid cookie if it is missing.
 
         Accompany endpoints authenticate with the stoken and require the account id
@@ -594,12 +594,12 @@ class HoyolabClient(base.BaseClient):
 
         cookies = self.cookie_manager.cookies
         if cookies and "stoken" in cookies and "stuid" not in cookies and self.cookie_manager.user_id is not None:
-            cookies["stuid"] = str(self.cookie_manager.user_id)
+            await self.cookie_manager.update_cookies({"stuid": str(self.cookie_manager.user_id)})
 
     @base.region_specific(types.Region.OVERSEAS)
     async def accompany_character(self, *, role_id: int, topic_id: int) -> models.AccompanyResult:
         """Accompany a character, role_id and topic_id can be found by calling get_accompany_characters."""
-        self._complete_stuid_cookie()
+        await self._complete_stuid_cookie()
         data = await self.request_bbs(
             "community/apihub/api/user/accompany/role", params=dict(role_id=role_id, topic_id=topic_id)
         )
@@ -610,7 +610,7 @@ class HoyolabClient(base.BaseClient):
         self, *, topic_id: int, lang: typing.Optional[str] = None
     ) -> models.AccompanyCharacterDetails:
         """Get the page details of an accompany character, topic_id can be found by calling get_accompany_characters."""
-        self._complete_stuid_cookie()
+        await self._complete_stuid_cookie()
         data = await self.request_bbs(
             "community/painter/api/topic/info",
             params=dict(topic_id=topic_id, scene="SceneAll"),
@@ -639,7 +639,7 @@ class HoyolabClient(base.BaseClient):
         sync_all_roles: bool = False,
     ) -> None:
         """Set the voice and subtitle language setting of an accompany character."""
-        self._complete_stuid_cookie()
+        await self._complete_stuid_cookie()
         setting = dict(
             voice_script_setting=dict(
                 script_lang=script_lang,

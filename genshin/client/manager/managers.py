@@ -5,6 +5,7 @@ from __future__ import annotations
 import abc
 import functools
 import http.cookies
+import inspect
 import logging
 import typing
 import warnings
@@ -22,6 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 __all__ = [
     "BaseCookieManager",
     "CookieManager",
+    "CookieUpdateHook",
     "InternationalCookieManager",
     "RawResponse",
     "RotatingCookieManager",
@@ -35,6 +37,7 @@ T = typing.TypeVar("T")
 CallableT = typing.TypeVar("CallableT", bound="typing.Callable[..., object]")
 AsyncCallableT = typing.TypeVar("AsyncCallableT", bound="typing.Callable[..., typing.Awaitable[object]]")
 MaybeSequence = typing.Union[T, typing.Sequence[T]]
+CookieUpdateHook = typing.Callable[[typing.Mapping[str, str]], typing.Union[None, typing.Awaitable[None]]]
 
 
 def parse_cookie(cookie: typing.Optional[CookieOrHeader]) -> dict[str, str]:
@@ -75,6 +78,9 @@ class BaseCookieManager(abc.ABC):
 
     _proxy: typing.Optional[yarl.URL] = None
     _socks_proxy: typing.Optional[str] = None
+
+    on_cookie_update: typing.Optional[CookieUpdateHook] = None
+    """Callback invoked with a copy of the cookies whenever the manager updates them itself."""
 
     @classmethod
     def from_cookies(cls, cookies: typing.Optional[AnyCookieOrHeader] = None) -> BaseCookieManager:
@@ -152,6 +158,15 @@ class BaseCookieManager(abc.ABC):
             **kwargs,
         )
 
+    async def _dispatch_cookie_update(self, cookies: typing.Mapping[str, str]) -> None:
+        """Call the cookie update hook, if any, with a copy of the cookies."""
+        if self.on_cookie_update is None:
+            return
+
+        result = self.on_cookie_update(dict(cookies))
+        if inspect.isawaitable(result):
+            await result
+
     @ratelimit.handle_ratelimits()
     @ratelimit.handle_proxy_errors
     @ratelimit.handle_request_timeouts()
@@ -171,12 +186,17 @@ class BaseCookieManager(abc.ABC):
 
                 data = await response.json()
 
+                updated = False
                 if not self.multi:
                     new_cookies = parse_cookie(response.cookies)
                     new_keys = new_cookies.keys() - cookies.keys()
                     if new_keys:
                         cookies.update(new_cookies)
+                        updated = True
                         _LOGGER.debug("Updating cookies for %s: %s", get_cookie_identifier(cookies), new_keys)
+
+        if updated:
+            await self._dispatch_cookie_update(cookies)
 
         errors.check_for_geetest(data)
 
@@ -286,6 +306,12 @@ class CookieManager(BaseCookieManager):
             raise TypeError("Cannot use both positional and keyword arguments at once")
 
         self.cookies = parse_cookie(cookies or kwargs)
+        return self.cookies
+
+    async def update_cookies(self, cookies: CookieOrHeader) -> typing.MutableMapping[str, str]:
+        """Merge cookies into the current ones and notify the cookie update hook."""
+        self._cookies.update(parse_cookie(cookies))
+        await self._dispatch_cookie_update(self._cookies)
         return self.cookies
 
     def set_browser_cookies(self, browser: typing.Optional[str] = None) -> typing.Mapping[str, str]:

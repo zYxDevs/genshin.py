@@ -86,8 +86,10 @@ class BaseClient(abc.ABC):
         headers: typing.Optional[aiohttp.typedefs.LooseHeaders] = None,
         cache: typing.Optional[client_cache.BaseCache] = None,
         debug: bool = False,
+        on_cookie_update: typing.Optional[managers.CookieUpdateHook] = None,
     ) -> None:
         self.cookie_manager = managers.BaseCookieManager.from_cookies(cookies)
+        self.on_cookie_update = on_cookie_update
         self.cache = cache or client_cache.StaticCache()
 
         self.uids = {}
@@ -258,19 +260,37 @@ class BaseClient(abc.ABC):
         level = logging.DEBUG if debug else logging.NOTSET
         logging.getLogger("genshin").setLevel(level)
 
+    @property
+    def on_cookie_update(self) -> typing.Optional[managers.CookieUpdateHook]:
+        """Callback invoked with a copy of the cookies whenever the client updates them itself.
+
+        This happens for example when a new cookie_token is minted from an stoken or when
+        a response sets new cookies. May be a sync or async callable. Use it to persist
+        refreshed cookies so the next client created from storage does not need to refresh again.
+        """
+        return self.cookie_manager.on_cookie_update
+
+    @on_cookie_update.setter
+    def on_cookie_update(self, hook: typing.Optional[managers.CookieUpdateHook]) -> None:
+        self.cookie_manager.on_cookie_update = hook
+
     def set_cookies(self, cookies: typing.Optional[managers.AnyCookieOrHeader] = None, **kwargs: typing.Any) -> None:
         """Parse and set cookies."""
         if not bool(cookies) ^ bool(kwargs):
             raise TypeError("Cannot use both positional and keyword arguments at once")
 
+        hook = self.on_cookie_update
         self.cookie_manager = managers.BaseCookieManager.from_cookies(cookies or kwargs)
+        self.on_cookie_update = hook
 
     def set_browser_cookies(self, browser: typing.Optional[str] = None) -> None:
         """Extract cookies from your browser and set them as client cookies.
 
         Available browsers: chrome, chromium, opera, edge, firefox.
         """
+        hook = self.on_cookie_update
         self.cookie_manager = managers.BaseCookieManager.from_browser_cookies(browser)
+        self.on_cookie_update = hook
 
     def set_authkey(self, authkey: typing.Optional[str] = None, *, game: typing.Optional[types.Game] = None) -> None:
         """Set an authkey for wish & transaction logs.
