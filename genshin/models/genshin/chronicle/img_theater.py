@@ -12,6 +12,8 @@ __all__ = (
     "BattleStatCharacter",
     "ImgTheater",
     "ImgTheaterData",
+    "LunarArcanaCard",
+    "LunarArcanaCollection",
     "TheaterBattleStats",
     "TheaterBuff",
     "TheaterCharaType",
@@ -89,6 +91,8 @@ class TheaterStats(APIModel):
     """The number of supporting cast characters assisting other players."""
     medal_num: int
     """The number of medals the player has obtained."""
+    lunar_arcana_completed: int = Aliased("tarot_finished_cnt", default=0)
+    """The number of Lunar Arcana challenges completed."""
 
 
 class TheaterSchedule(APIModel):
@@ -155,8 +159,27 @@ class ImgTheaterData(APIModel):
         return values
 
 
+class LunarArcanaCard(APIModel):
+    """A card in the Lunar Arcana Collection."""
+
+    icon: str
+    """Icon URL; empty if the card is not unlocked."""
+    name: str
+    unlocked: bool = Aliased("is_unlock")
+    unlock_count: int = Aliased("unlock_num")
+
+
+class LunarArcanaCollection(APIModel):
+    """Lunar Arcana Collection."""
+
+    total: int = Aliased("total_num")
+    unlocked: int = Aliased("curr_num")
+    cards: typing.Sequence[LunarArcanaCard] = Aliased("list")
+
+
 class ImgTheater(APIModel):
     """Imaginarium theater."""
 
     datas: typing.Sequence[ImgTheaterData] = Aliased("data")
     unlocked: bool = Aliased("is_unlock")
+    lunar_arcana_collection: typing.Optional[LunarArcanaCollection] = Aliased("tarot_card_state", default=None)

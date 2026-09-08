@@ -41,6 +41,17 @@ async def test_imaginarium_theater(client: genshin.Client, genshin_uid: int):
     assert data
 
 
+async def test_lunar_arcana_collection(client: genshin.Client, genshin_uid: int):
+    data = await client.get_imaginarium_theater(genshin_uid)
+
+    assert data.lunar_arcana_collection
+    collection = data.lunar_arcana_collection
+    assert collection.total == 22
+    assert len(collection.cards) == collection.total
+    assert collection.unlocked == sum(card.unlocked for card in collection.cards)
+    assert all(card.icon for card in collection.cards if card.unlocked)
+
+
 async def test_notes(lclient: genshin.Client, genshin_uid: int):
     data = await lclient.get_notes(genshin_uid)
 
