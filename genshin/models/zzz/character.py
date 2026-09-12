@@ -116,7 +116,9 @@ class ZZZPropertyType(enum.IntEnum):
     ENERGY_REGEN = 30502
     IMPACT = 12202
 
+    BASE_HP = 11101
     BASE_ATK = 12101
+    BASE_DEF = 13101
     FLAT_HP = 11103
     FLAT_ATK = 12103
     FLAT_DEF = 13103
