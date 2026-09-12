@@ -119,6 +119,8 @@ class ZZZPropertyType(enum.IntEnum):
     BASE_HP = 11101
     BASE_ATK = 12101
     BASE_DEF = 13101
+    BASE_PEN = 23101
+
     FLAT_HP = 11103
     FLAT_ATK = 12103
     FLAT_DEF = 13103
