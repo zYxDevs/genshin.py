@@ -96,6 +96,8 @@ class ZZZPropertyType(enum.IntEnum):
     AGENT_PEN = 232
     AGENT_SHEER_FORCE = 19
     AGENT_ADRENALINE = 20
+    AGENT_LACERATION_DMG = 213
+    AGENT_ASA = 324
 
     # Agent DMG bonus
     PHYSICAL_DMG_BONUS = 315
