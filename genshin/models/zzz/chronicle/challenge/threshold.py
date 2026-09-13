@@ -117,6 +117,6 @@ class ThresholdSimulation(APIModel):
     """ZZZ Threshold Simulation."""
 
     info: ThresholdSimulationInfo = Aliased("void_front_battle_abstract_info_brief")
-    boss_challenge: ThresholdSimulationBossChallenge = Aliased("boss_challenge_record")
+    boss_challenge: typing.Optional[ThresholdSimulationBossChallenge] = Aliased("boss_challenge_record", default=None)
     challenges: typing.Sequence[ThresholdSimulationChallenge] = Aliased("main_challenge_record_list")
-    player: ThresholdSimulationPlayer = Aliased("role_basic_info")
+    player: typing.Optional[ThresholdSimulationPlayer] = Aliased("role_basic_info", default=None)
