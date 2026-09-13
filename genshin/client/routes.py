@@ -160,7 +160,7 @@ NAP_CULTIVATE_URL = InternationalRoute(
     chinese="https://api-takumi.mihoyo.com/event/nap_cultivate_tool",
 )
 
-NAP_BADGE_LOGIN_URL = InternationalRoute(
+BADGE_LOGIN_URL = InternationalRoute(
     overseas="https://sg-act-public-api.hoyolab.com/common/badge/v1/login/account",
     chinese="https://api-takumi.mihoyo.com/common/badge/v1/login/account",
 )
