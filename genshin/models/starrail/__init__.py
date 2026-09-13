@@ -3,3 +3,4 @@
 from .character import *
 from .chronicle import *
 from .rpgsimulator import *
+from .warp_records import *

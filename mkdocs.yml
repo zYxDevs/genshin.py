@@ -108,6 +108,7 @@ nav:
       - wish_history.md
       - transactions.md
       - hsr_lineup.md
+      - hsr_warp_records.md
       - hsr_characters.md
   - Advanced Usage:
       - configuration.md
@@ -127,6 +128,7 @@ nav:
           - reference/clients/diary.md
           - reference/clients/gacha.md
           - reference/clients/hoyolab.md
+          - reference/clients/hsr_warp_records.md
           - reference/clients/lineup.md
           - reference/clients/teapot.md
           - reference/clients/transaction.md
@@ -162,6 +164,7 @@ nav:
           - Star Rail:
               - reference/models/starrail/character.md
               - reference/models/starrail/rpgsimulator.md
+              - reference/models/starrail/warp_records.md
               - Chronicle:
                   - reference/models/starrail/chronicle/base.md
                   - reference/models/starrail/chronicle/characters.md

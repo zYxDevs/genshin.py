@@ -347,3 +347,8 @@ GET_FP_URL = InternationalRoute(
 MIMO_URL = Route("https://sg-public-api.hoyolab.com/event/e2023mimotravel")
 
 HSR_LINEUP_SIMULATOR_URL = Route("https://sg-public-api.hoyolab.com/event/rpgsimulator")
+
+HKRPG_GACHA_RECORD_URL = InternationalRoute(
+    overseas="https://sg-act-public-api.hoyolab.com/event/rpg_gacha_record",
+    chinese="https://api-takumi.mihoyo.com/event/rpg_gacha_record",
+)
